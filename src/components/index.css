@@ -1,0 +1,46 @@
+/* .choice-td {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} */
+/* td里面的select */
+.choice-select-td {
+  width: 90%;
+  /* height: 50%; */
+  height: 30px;
+  margin: auto;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  outline: none;
+  outline: border-box;
+  user-select: none;
+  text-align: left;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 0 0 2px transparent;
+  justify-content: space-between;
+  /* position: relative; */
+}
+
+.choice-select-arrow {
+  position: relative;
+}
+
+.choice-select-arrow::after {
+  display: inline-block;
+  content: " ";
+  height: 10px;
+  width: 10px;
+  border-width: 0 1px 1px 0;
+  border-color: rgba(0, 0, 0, 0.25);
+  border-style: solid;
+  transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
+  transform-origin: center;
+  transition: transform .3s;
+  position: absolute;
+  top: 50%;
+  right: 11px;
+  transform-origin: 50% 50%;
+  margin-top: -6px;
+}
