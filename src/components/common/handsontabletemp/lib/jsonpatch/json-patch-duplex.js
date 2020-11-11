@@ -578,7 +578,7 @@ var jsonpatch;
             else if (operation.op === 'move' || operation.op === 'copy') {
                 var existingValue = { op: "_get", path: operation.from, value: undefined };
                 var error = jsonpatch.validate([existingValue], tree);
-                if (error && error.name === 'OPERATION_PATH_UNRESOLVABLE') {
+                if (error && error?.name === 'OPERATION_PATH_UNRESOLVABLE') {
                     throw new JsonPatchError('Cannot perform the operation from a path that does not exist', 'OPERATION_FROM_UNRESOLVABLE', index, operation, tree);
                 }
             }

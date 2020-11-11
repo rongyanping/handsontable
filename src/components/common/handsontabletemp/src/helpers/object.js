@@ -246,7 +246,7 @@ export function objectEach(object, iteratee) {
  * @returns {*}
  */
 export function getProperty(object, name) {
-  const names = name.split('.');
+  const names = name && name.split('.');
   let result = object;
 
   objectEach(names, (nameItem) => {

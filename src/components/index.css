@@ -6,7 +6,6 @@
 /* td里面的select */
 .choice-select-td {
   width: 90%;
-  /* height: 50%; */
   height: 30px;
   margin: auto;
   border: 1px solid #d9d9d9;
@@ -20,7 +19,6 @@
   align-items: center;
   box-shadow: 0 0 0 2px transparent;
   justify-content: space-between;
-  /* position: relative; */
 }
 
 .choice-select-arrow {
@@ -44,3 +42,24 @@
   transform-origin: 50% 50%;
   margin-top: -6px;
 }
+/* timeInterval */
+ .choice-time-picker{
+    width: 44% !important;
+  }
+
+  /* checkbox */
+  .choice-checkbox-td, .choice-checkbox-header{
+    width: 18px;
+    height: 21px;
+    vertical-align: middle;
+  }
+  .handsontable .choice-checkbox-middle-center{
+    text-align: center;
+    vertical-align: middle;
+  }
+
+
+  /* 通用样式 */
+  input{
+    box-sizing: border-box !important;
+  }

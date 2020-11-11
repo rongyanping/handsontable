@@ -1,5 +1,8 @@
 import React, { Component } from "react";
+import ReactDOM from 'react-dom';
+import { Select } from 'antd';
 import 'antd/dist/antd.css';
+import { isNaN } from 'lodash';
 // import SelectType from './common/antd-handsontable/select';
 import CustomComponent from './common/antd-handsontable/index';
 import { getCssTransform, offset } from './common/handsontabletemp/src/helpers/dom/element';
@@ -7,7 +10,7 @@ import Handsontable from './common/handsontabletemp/src/index.js'
 import './index.css';
 
 const prefixCls = 'choice';
-
+const { Option } = Select;
 export default class HandsonTable extends Component<any, any> {
   choDom: React.RefObject<any>;
 
@@ -5425,6 +5428,8 @@ export default class HandsonTable extends Component<any, any> {
       activeEditor: null, // 当前激活的单元格
       defaultValue: null, // 浮框默认值
       typeRefreshKey: 0, // 自定义类型刷新页面的key
+      customStyle: null, // 自定义类型组件的样式
+      textParent: null, // 表格根节点的dom
     };
   }
 
@@ -5432,8 +5437,36 @@ export default class HandsonTable extends Component<any, any> {
     const _this = this;
     const dom: any = document.getElementById('mytable');
 
+    // 注册单元格类型
     (function (Handsontable) {
-      Handsontable.renderers.registerRenderer('choice.custom', _this.customRenderer.bind(_this));
+      // @ts-ignore
+      // var MyEditor = Handsontable.editors?.TextEditor?.prototype.extend();
+      const MyEditor = Handsontable.editors?.BaseEditor?.prototype.extend();
+      // 类型校验
+      function customValidator(query: any, callback: any) {
+        // ...validator logic
+        callback(true);
+      }
+
+      // 注册别名：selct
+      Handsontable.cellTypes.registerCellType('cho.Select', {
+        editor: MyEditor,
+        renderer: _this.customRenderer.bind(_this),
+        validator: customValidator,
+        // 您可以根据Handsontable设置向单元类型添加其他选项
+        // className: 'my-cell',
+        // allowInvalid: true,
+        // 或者可以添加自定义属性，可以在cellProperties中访问
+        choType: 'Select',
+      });
+      // 注册别名：time interval
+      Handsontable.cellTypes.registerCellType('cho.TimeInterval', {
+        editor: MyEditor,
+        renderer: _this.customRendererTimeInterval.bind(_this),
+        validator: customValidator,
+        choType: 'TimeInterval',
+      });
+
     })(Handsontable);
 
     // @ts-ignore
@@ -5450,22 +5483,23 @@ export default class HandsonTable extends Component<any, any> {
         },
         {
           data: 'pk_storedept',
-          choType: 'Select',
+          type: 'cho.Select',
+          // choType: 'Select',
           source: ['101', '102', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
           width: 120,
-          renderer: 'choice.custom',
+          // renderer: 'choice.custom',
         },
         {
           data: 'vstoredeptname',
-          choType: 'TimePicker',
+          type: 'cho.TimeInterval',
           source: ['yellow1', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
           width: 220,
           height: 60,
         },
         {
           data: 'pk_pubitem',
-          choType: 'TimeInterval',
-          source: ['yellow2', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
+          type: 'cho.TimeInterval',
+          // source: ['yellow2', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
           width: 320,
         },
         {
@@ -5532,6 +5566,7 @@ export default class HandsonTable extends Component<any, any> {
       dropdownMenu: true,
       language: 'en-US',
       className: "htLeft htMiddle", // 通过class控制单元格内容显示的位置 Horizontal: htLeft, htCenter, htRight, htJustify; Vertical: htTop, htMiddle, htBottom
+      fixedColumnsLeft: 2,
       // 鼠标按下
       afterOnCellMouseDown: (event: any, coords: any, td: any) => {
       },
@@ -5552,44 +5587,42 @@ export default class HandsonTable extends Component<any, any> {
     if (!this.state.hot) {
       this.setState({
         hot,
+        textParent: dom,
       });
     }
   }
-  // select自定义渲染
+
+  // 自定义渲染select
   public customRenderer(hotInstance: any, td: any, row: any, column: any, prop: any, value: any, cellProperties: any) {
     const _this = this;
     // @ts-ignore
     Handsontable.renderers.BaseRenderer.apply(this, arguments);
     const childs = td.querySelector(`.${prefixCls}-select-td`);
-    // console.log('value-----', value, childs);
+    // console.log('value-----', hotInstance, value);
     // 是否已经存在select
     if (!childs) {
-      let div: any = null;
-      div = document.createElement('div');
+      let div: any = document.createElement('div');
       div.setAttribute('class', `${prefixCls}-select-td`);
       div.setAttribute('data-row', row);
       div.setAttribute('data-col', column);
       div.innerHTML = value;
 
+      let arrowSpan: any = document.createElement('span');
+      arrowSpan.setAttribute('class', `${prefixCls}-select-arrow`);
+      div.appendChild(arrowSpan);
+
       // 创建的div绑定click事件
       // @ts-ignore
       Handsontable.dom.addEvent(div, 'click', function (event: any) {
-        console.log('click-----');
         event.stopPropagation();
         const result = hotInstance.getActiveEditor();
-        const cellProperties = hotInstance.getCellMeta(result?.row, result?.col);
-        const { source, choType } = cellProperties;
+        const tempcellProperties = hotInstance.getCellMeta(result?.row, result?.col);
+        const { source, choType } = tempcellProperties;
+        // console.log('click--result---', result);
+        // console.log('click--tempcellProperties---', source, choType);
 
-        // 查找所有的select-td元素 
-        const allActiveSelectDom = document.querySelectorAll(`.${prefixCls}-active-select-td`);
-        if (allActiveSelectDom && allActiveSelectDom.length > 0) {
-          for (let i = 0; i < allActiveSelectDom.length; i++) {
-            let temp: any = allActiveSelectDom[i];
-            temp.style.border = '1px solid #d9d9d9';
-          }
-        }
-        // 当前div添加active样式
-        // div.setAttribute('class', `${prefixCls}-select-td ${prefixCls}-active-select-td`);
+        // 获取当前td中div的宽高，赋值给select默认样式 
+        const selectDom = div.querySelector(`.${prefixCls}-select-td`);
 
         // 存储当前点击的数据
         _this.setState({
@@ -5598,15 +5631,15 @@ export default class HandsonTable extends Component<any, any> {
           activeEditor: result,
           defaultValue: null,
           typeRefreshKey: Math.random(),
+          customStyle: { ..._this.state.customStyle, width: selectDom?.offsetWidth, height: selectDom?.offsetHeight },
         }, () => {
           // 监听滚动
-          _this.refreshDimensions(hotInstance, td, result.row, result.col);
+          _this.refreshDimensions(hotInstance, td, result.row, result.col,'select');
           hotInstance.addHook('afterScrollHorizontally', () => {
-            _this.refreshDimensions(hotInstance, td, result.row, result.col);
+            _this.refreshDimensions(hotInstance, td, result.row, result.col,'select');
           });
           hotInstance.addHook('afterScrollVertically', () => {
-            // console.log('首页----scroll---Vertically---')
-            _this.refreshDimensions(hotInstance, td, result.row, result.col);
+            _this.refreshDimensions(hotInstance, td, result.row, result.col,'select');
           });
         });
       });
@@ -5617,10 +5650,91 @@ export default class HandsonTable extends Component<any, any> {
       td.setAttribute('class', `${prefixCls}-td`);
       td.appendChild(div);
     } else {
-      childs.innerHTML = value;
+      childs.innerHTML = `${value}<span class='${prefixCls}-select-arrow'></span>`;
     }
     return td;
   }
+
+  // 自定义渲染 timeInterval
+  public customRendererTimeInterval(hotInstance: any, td: any, row: any, column: any, prop: any, value: any, cellProperties: any) {
+    const _this = this;
+    // @ts-ignore
+    Handsontable.renderers.BaseRenderer.apply(this, arguments);
+    const childs = td.querySelector(`.${prefixCls}-time-interval-td`);
+    // console.log('value-----', hotInstance, value);
+    // 是否已经存在select
+    if (!childs) {
+      let div: any = document.createElement('div');
+      div.setAttribute('class', `${prefixCls}-time-interval-td`);
+      div.setAttribute('data-row', row);
+      div.setAttribute('data-col', column);
+      // div.innerHTML = value;
+
+      let startDiv = document.createElement('div');
+      startDiv.setAttribute('class', `${prefixCls}-time-interval-item ${prefixCls}-time-interval-start ant-time-picker`);
+      let startIcon = document.createElement('img');
+      // @ts-ignore
+      startIcon.src = require('../icon/time.png');
+      startIcon.setAttribute('class', 'time-icon');
+      startDiv.appendChild(startIcon);
+
+      let lineDiv = document.createElement('div');
+      lineDiv.setAttribute('class', `${prefixCls}-time-interval-line`);
+      lineDiv.innerHTML = '-';
+
+      let endDiv = document.createElement('div');
+      endDiv.setAttribute('class', `${prefixCls}-time-interval-item ${prefixCls}-time-interval-end`);
+      let endIcon = document.createElement('img');
+      // @ts-ignore
+      endIcon.src = require('../icon/time.png');
+      endIcon.setAttribute('class', 'time-icon');
+      endDiv.appendChild(endIcon);
+
+      div.append(startDiv,lineDiv,endDiv);
+
+      // 创建的div绑定click事件
+      // @ts-ignore
+      Handsontable.dom.addEvent(div, 'click', function (event: any) {
+        event.stopPropagation();
+        const result = hotInstance.getActiveEditor();
+        const tempcellProperties = hotInstance.getCellMeta(result?.row, result?.col);
+        const { source, choType } = tempcellProperties;
+        // console.log('click--result---', result);
+        console.log('click--tempcellProperties---', source, choType);
+
+        // 获取当前td中div的宽高，赋值给select默认样式 
+        const selectDom = div.querySelector(`.${prefixCls}-time-interval-td`);
+        // 存储当前点击的数据
+        _this.setState({
+          choType,
+          dataSource: source,
+          activeEditor: result,
+          defaultValue: null,
+          typeRefreshKey: Math.random(),
+          customStyle: { ..._this.state.customStyle, width: selectDom?.offsetWidth, height: selectDom?.offsetHeight },
+        }, () => {
+          // 监听滚动
+          _this.refreshDimensions(hotInstance, td, result.row, result.col,'time-interval');
+          hotInstance.addHook('afterScrollHorizontally', () => {
+            _this.refreshDimensions(hotInstance, td, result.row, result.col,'time-interval');
+          });
+          hotInstance.addHook('afterScrollVertically', () => {
+            _this.refreshDimensions(hotInstance, td, result.row, result.col,'time-interval');
+          });
+        });
+      });
+      // @ts-ignore
+      Handsontable?.dom?.empty(td);
+
+      // td 添加class
+      td.setAttribute('class', `${prefixCls}-td`);
+      td.appendChild(div);
+    } else {
+      childs.innerHTML = `${value}<img class='time-icon' src=${require('../icon/time.png')} />`;
+    }
+    return td;
+  }
+
   // 判断位置
   public checkEditorSection(hot: any, row: any, col: any) {
     const totalRows = hot?.countRows();
@@ -5642,10 +5756,15 @@ export default class HandsonTable extends Component<any, any> {
     }
     return section;
   }
+
   // 计算 上+左距离
-  public refreshDimensions(hot: any, td: any, row: any, col: any) {
-    const result = hot.getActiveEditor();
-    const currentOffset: any = offset(result?.TD);
+  public refreshDimensions(hot: any, td: any, row: any, col: any, cls: any) {
+    // 获取滚动时点击的td的正确位置offsetTop;滚动到一定位置，原来的位置会发生变化 需要重新获取
+    let tempTD: any = this.getEditedCell(hot, row, col);
+    if (!tempTD) return;
+    // const result = hot.getActiveEditor();
+
+    const currentOffset: any = offset(tempTD);
     const containerOffset: any = offset(hot.rootElement);
     const scrollableContainerTop = hot.view.wt.wtOverlays.topOverlay.mainTableScrollableElement;
     const scrollableContainerLeft = hot.view.wt.wtOverlays.leftOverlay.mainTableScrollableElement;
@@ -5657,37 +5776,13 @@ export default class HandsonTable extends Component<any, any> {
     const scrollTop = ['', 'left'].includes(editorSection) ? containerScrollTop : 0;
     const scrollLeft = ['', 'top', 'bottom'].includes(editorSection) ? containerScrollLeft : 0;
 
-    // If colHeaders is disabled, cells in the first row have border-top
     const editTopModifier = currentOffset?.top === containerOffset?.top ? 0 : 1;
-
     const settings = hot.getSettings();
     const colHeadersCount = hot.hasColHeaders();
-
-    // 当前td.offsetTop - 根节点.offsetTop - (当前td.offsetTop === 根节点.offsetTop ? 0 : 1) - 
     let editTop = currentOffset?.top - containerOffset.top - editTopModifier - scrollTop;
     let editLeft = currentOffset?.left - containerOffset.left - 1 - scrollLeft;
-    let cssTransformOffset;
-
-    // TODO: Refactor this to the new instance.getCell method (from #ply-59), after 0.12.1 is released
-    switch (editorSection) {
-      case 'top':
-        cssTransformOffset = getCssTransform(hot.view.wt.wtOverlays.topOverlay.clone.wtTable.holder.parentNode);
-        break;
-      case 'left':
-        cssTransformOffset = getCssTransform(hot.view.wt.wtOverlays.leftOverlay.clone.wtTable.holder.parentNode);
-        break;
-      case 'top-left-corner':
-        cssTransformOffset = getCssTransform(hot.view.wt.wtOverlays.topLeftCornerOverlay.clone.wtTable.holder.parentNode);
-        break;
-      case 'bottom-left-corner':
-        cssTransformOffset = getCssTransform(hot.view.wt.wtOverlays.bottomLeftCornerOverlay.clone.wtTable.holder.parentNode);
-        break;
-      case 'bottom':
-        cssTransformOffset = getCssTransform(hot.view.wt.wtOverlays.bottomOverlay.clone.wtTable.holder.parentNode);
-        break;
-      default:
-        break;
-    }
+    // console.log('自定义页面 tempTD-----', tempTD);
+    // console.log('自定义页面 getSelectedLast-----', currentOffset?.top, containerOffset.top, scrollTop);
 
     if ((colHeadersCount && hot.getSelectedLast() && hot.getSelectedLast()[0] === 0) ||
       (settings.fixedRowsBottom && hot.getSelectedLast() && hot.getSelectedLast()[0] === totalRowsCount - settings.fixedRowsBottom)) {
@@ -5696,21 +5791,74 @@ export default class HandsonTable extends Component<any, any> {
     if (hot.getSelectedLast() && hot.getSelectedLast()[1] === 0) {
       editLeft += 1;
     }
-    // console.log('top-----', editTop, scrollableContainerTop)
-    // console.log('scroll--val-----', result);
-    // if (cssTransformOffset && cssTransformOffset !== -1) {
-    //   this.textareaParentStyle[cssTransformOffset[0]] = cssTransformOffset[1];
-    // } else {
-    //   resetCssTransform(this.TEXTAREA_PARENT);
-    // }
+    // 获取td中自定义的div位置 及大小
+    const customDiv = tempTD.querySelector(`.${prefixCls}-${cls}-td`);
+    // console.log('customDiv-----', customDiv.innerHTML);
+    // 存储最新的数据
     this.setState({
-      position: { left: editLeft, top: editTop + result?.TD?.offsetHeight },
-      defaultValue: result?.originalValue,
+      position: { left: editLeft + customDiv?.offsetLeft, top: editTop + customDiv?.offsetTop },
+      customStyle: { width: `${customDiv?.offsetWidth || 0}px`, height: `${customDiv?.offsetHeight || 0}px` },
+      // defaultValue: result?.originalValue,
+      defaultValue: customDiv?.innerHTML,
     });
   }
 
+  // 滚动时查找当前点击的td
+  public getEditedCell(hot: any, row: any, col: any) {
+    const editorSection = this.checkEditorSection(hot, row, col);
+    let editedCell;
+    let holderZIndex;
+    switch (editorSection) {
+      case 'top':
+        editedCell = hot.view.wt.wtOverlays.topOverlay.clone.wtTable.getCell({
+          row,
+          col,
+        });
+        holderZIndex = 101;
+        break;
+      case 'top-left-corner':
+        editedCell = hot.view.wt.wtOverlays.topLeftCornerOverlay.clone.wtTable.getCell({
+          row,
+          col,
+        });
+        holderZIndex = 103;
+        break;
+      case 'bottom-left-corner':
+        editedCell = hot.view.wt.wtOverlays.bottomLeftCornerOverlay.clone.wtTable.getCell({
+          row,
+          col,
+        });
+        holderZIndex = 103;
+        break;
+      case 'left':
+        editedCell = hot.view.wt.wtOverlays.leftOverlay.clone.wtTable.getCell({
+          row,
+          col,
+        });
+        holderZIndex = 102;
+        break;
+      case 'bottom':
+        editedCell = hot.view.wt.wtOverlays.bottomOverlay.clone.wtTable.getCell({
+          row,
+          col,
+        });
+        holderZIndex = 102;
+        break;
+      default:
+        editedCell = hot.getCell(row, col);
+        holderZIndex = -1;
+        break;
+    }
+
+    this.setState({
+      customStyle: { ...this.state.customStyle, zIndex: holderZIndex },
+    });
+
+    return editedCell !== -1 && editedCell !== -2 ? editedCell : void 0;
+  }
+
   render() {
-    const { choType, position, dataSource, hot, activeEditor, defaultValue, typeRefreshKey } = this.state;
+    const { choType, position, dataSource, hot, activeEditor, defaultValue, typeRefreshKey, customStyle, textParent } = this.state;
     const handleChange = (value: any) => {
       // console.log('onchange------', value);
       // 更新单元格value值
@@ -5721,7 +5869,9 @@ export default class HandsonTable extends Component<any, any> {
         <div id="mytable" style={{ position: 'relative' }}>
           {choType &&
             <CustomComponent
+              textParent={textParent}
               position={position}
+              style={customStyle}
               dataSource={dataSource}
               type={choType}
               defaultValue={defaultValue}

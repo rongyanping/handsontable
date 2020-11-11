@@ -1,14 +1,17 @@
 import React, { Component } from "react";
+import ReactDOM from 'react-dom';
+import { isArray, indexOf, findIndex, cloneDeep } from 'lodash';
 import 'antd/dist/antd.css';
-import { isNaN } from 'lodash';
-// import SelectType from './common/antd-handsontable/select';
+import { offset } from './common/handsontabletemp/src/helpers/dom/element';
+import Handsontable from './common/handsontabletemp/src/index.js';
 import CustomComponent from './common/antd-handsontable/index';
-import { getCssTransform, offset } from './common/handsontabletemp/src/helpers/dom/element';
-import Handsontable from './common/handsontabletemp/src/index.js'
 import './index.css';
 
-const prefixCls = 'choice';
+/**
+ * choClassName: 每一列的className    string | array   目前仅支持checkbox类型
+ */
 
+const prefixCls = 'choice';
 export default class HandsonTable extends Component<any, any> {
   choDom: React.RefObject<any>;
 
@@ -18,9 +21,10 @@ export default class HandsonTable extends Component<any, any> {
     this.state = {
       data: [
         {
+          checked: true,
           "pk_Printprog": "e83e7eae9ec847af9fbac2346ea608de",
-          "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "3071190144",
+          "pk_printprogt": ['f1ac10fa2b1746a484e3b29325be45cc', 'f1ac10fa2b1746a484e3b29325be45cc0'],
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10205",
           "dishName": "导入的大量菜品1195",
           "pk_storedept": "101",
@@ -45,9 +49,10 @@ export default class HandsonTable extends Component<any, any> {
           "deptTypeName2": [],
           "deptTypeName3": []
         }, {
+          checked: true,
           "pk_Printprog": "f92ef312dc604fa1a9e1921dde390781",
-          "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "2801100144",
+          "pk_printprogt": ['f1ac10fa2b1746a484e3b29325be45cc', 'f1ac10fa2b1746a484e3b29325be45cc0'],
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10206",
           "dishName": "导入的大量菜品1196",
           "pk_storedept": "101",
@@ -72,9 +77,10 @@ export default class HandsonTable extends Component<any, any> {
           "deptTypeName2": [],
           "deptTypeName3": []
         }, {
+          checked: true,
           "pk_Printprog": "137d997db50c41048d1a93852c2f7c8e",
-          "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "3031350144",
+          "pk_printprogt": ['f1ac10fa2b1746a484e3b29325be45cc', 'f1ac10fa2b1746a484e3b29325be45cc0'],
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10207",
           "dishName": "导入的大量菜品1197",
           "pk_storedept": "101",
@@ -100,8 +106,8 @@ export default class HandsonTable extends Component<any, any> {
           "deptTypeName3": []
         }, {
           "pk_Printprog": "0e72098be7ce453aa0a4eacc9d72a5ec",
-          "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "2771140144",
+          "pk_printprogt": ['f1ac10fa2b1746a484e3b29325be45cc', 'f1ac10fa2b1746a484e3b29325be45cc0'],
+          "pk_pubitem": null,
           "dishCode": "10208",
           "dishName": "导入的大量菜品1198",
           "pk_storedept": "101",
@@ -128,7 +134,7 @@ export default class HandsonTable extends Component<any, any> {
         }, {
           "pk_Printprog": "99a62c7509474e7ca53814426a4569f4",
           "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "2941180144",
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10209",
           "dishName": "导入的大量菜品1199",
           "pk_storedept": "101",
@@ -155,7 +161,7 @@ export default class HandsonTable extends Component<any, any> {
         }, {
           "pk_Printprog": "c66d41f4f5354a52b36c9749eec28e6f",
           "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "2801120144",
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10210",
           "dishName": "导入的大量菜品1200",
           "pk_storedept": "101",
@@ -182,7 +188,7 @@ export default class HandsonTable extends Component<any, any> {
         }, {
           "pk_Printprog": "c4f18442c99d4bb98e735d16012015a3",
           "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "2841270144",
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10211",
           "dishName": "导入的大量菜品1201",
           "pk_storedept": "101",
@@ -209,7 +215,7 @@ export default class HandsonTable extends Component<any, any> {
         }, {
           "pk_Printprog": "c247ed2e99f447cdb79873fff2622b71",
           "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "2771150144",
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10212",
           "dishName": "导入的大量菜品1202",
           "pk_storedept": "101",
@@ -236,7 +242,7 @@ export default class HandsonTable extends Component<any, any> {
         }, {
           "pk_Printprog": "971c335680cd4145a592d08a458252e8",
           "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "2901270144",
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10213",
           "dishName": "导入的大量菜品1203",
           "pk_storedept": "101",
@@ -263,7 +269,7 @@ export default class HandsonTable extends Component<any, any> {
         }, {
           "pk_Printprog": "92d60f15a1a74a49981d8ebc02674832",
           "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "3111230144",
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10214",
           "dishName": "导入的大量菜品1204",
           "pk_storedept": "101",
@@ -290,7 +296,7 @@ export default class HandsonTable extends Component<any, any> {
         }, {
           "pk_Printprog": "af69a90e0af248a9a5f2f01c4b3a2d53",
           "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "3111240144",
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10215",
           "dishName": "导入的大量菜品1205",
           "pk_storedept": "101",
@@ -317,7 +323,7 @@ export default class HandsonTable extends Component<any, any> {
         }, {
           "pk_Printprog": "ba9d89cf18ac4b07a8c9672970834abb",
           "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "2841320144",
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10216",
           "dishName": "导入的大量菜品1206",
           "pk_storedept": "101",
@@ -344,7 +350,7 @@ export default class HandsonTable extends Component<any, any> {
         }, {
           "pk_Printprog": "d51585a699bf4a168e3b0b6859a58ade",
           "pk_printprogt": "f1ac10fa2b1746a484e3b29325be45cc",
-          "pk_pubitem": "2891280144",
+          "pk_pubitem": ['12:00:00', '13:00:00'],
           "dishCode": "10217",
           "dishName": "导入的大量菜品1207",
           "pk_storedept": "101",
@@ -5419,22 +5425,31 @@ export default class HandsonTable extends Component<any, any> {
           "deptTypeName3": []
         },
       ],
-      choType: null, // 自定义的column类型
+      choType: undefined, // 自定义的column类型
       position: null, // 浮框的定位位置
       hot: null, // handsontable实例
-      dataSource: null, // select下拉框的数据源
       activeEditor: null, // 当前激活的单元格
-      defaultValue: null, // 浮框默认值
+      defaultValue: undefined, // 浮框默认值
       typeRefreshKey: 0, // 自定义类型刷新页面的key
       customStyle: null, // 自定义类型组件的样式
       textParent: null, // 表格根节点的dom
+
+      dataSource: undefined, // select下拉框的数据源
+      mode: null, // select mode类型
+
+      startOpen: true, // timeInterval 打开/关闭
+      endOpen: false,
+      timeIntervalValue: null, // timeInterval value值
+
+      isChecked: false, // 表头checkbox的状态值
+      checkedAllArr: [], // 每一列的checkbox状态
+      countRows: 0, // 总数据条数
     };
   }
 
   public componentDidMount() {
     const _this = this;
     const dom: any = document.getElementById('mytable');
-
     // 注册单元格类型
     (function (Handsontable) {
       // @ts-ignore
@@ -5446,8 +5461,8 @@ export default class HandsonTable extends Component<any, any> {
         callback(true);
       }
 
-      // Register an alias
-      Handsontable.cellTypes.registerCellType('cho.custom.select', {
+      // 注册别名：selct
+      Handsontable.cellTypes.registerCellType('cho.Select', {
         editor: MyEditor,
         renderer: _this.customRenderer.bind(_this),
         validator: customValidator,
@@ -5457,13 +5472,50 @@ export default class HandsonTable extends Component<any, any> {
         // 或者可以添加自定义属性，可以在cellProperties中访问
         choType: 'Select',
       });
+      // 注册：multiple-select
+      Handsontable.cellTypes.registerCellType('cho.MultipleSelect', {
+        editor: MyEditor,
+        renderer: _this.customRenderer.bind(_this),
+        validator: customValidator,
+        choType: 'MultipleSelect',
+      });
+      // 注册别名：time interval
+      Handsontable.cellTypes.registerCellType('cho.TimeInterval', {
+        editor: MyEditor,
+        renderer: _this.customRendererTimeInterval.bind(_this),
+        validator: customValidator,
+        choType: 'TimeInterval',
+      });
 
     })(Handsontable);
-
+    // 实例化
+    const headerArr = [
+      '',
+      '菜品编码',
+      '菜品名称',
+      '门店部门select',
+      '配置组',
+      '打印类型select-多选',
+      '是否打印副联time-interval',
+      '分楼层打印1',
+      '使用时间段1',
+      '打印类型2',
+      '分楼层打印2',
+      '使用时间段2',
+      '打印类型3',
+      '分楼层打印3',
+      '使用时间段3',
+    ];
     // @ts-ignore
     const hot = dom && new Handsontable(dom, {
       data: this.state.data,
       columns: [
+        {
+          // type: 'cho.Checkbox',
+          data: 'checked',
+          type: 'checkbox',
+          choClassName: [`${prefixCls}-checkbox-td`, `${prefixCls}-checkbox-middle-center`],
+        },
         {
           data: 'dishCode',
           width: 80
@@ -5474,29 +5526,29 @@ export default class HandsonTable extends Component<any, any> {
         },
         {
           data: 'pk_storedept',
-          type: 'cho.custom.select',
-          // choType: 'Select',
+          type: 'cho.Select',
           source: ['101', '102', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
           width: 120,
-          // renderer: 'choice.custom',
         },
         {
-          data: 'vstoredeptname',
-          choType: 'TimePicker',
-          source: ['yellow1', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
-          width: 220,
-          height: 60,
-        },
-        {
-          data: 'pk_pubitem',
-          choType: 'TimeInterval',
-          source: ['yellow2', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
+          // data: 'pk_printprogt',
+          type: 'cho.MultipleSelect',
+          mode: 'multiple', // selcet 多选类型
+          source: ['101', '102', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
           width: 320,
         },
         {
-          type: 'dropdown',
-          source: ['yellow3', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white']
+          data: 'pk_pubitem',
+          type: 'cho.TimeInterval',
+          width: 320,
+          height: 60,
         },
+        // {
+        //   data: 'pk_pubitem',
+        //   type: 'cho.TimeInterval',
+        //   // source: ['yellow2', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
+        //   width: 320,
+        // },
         {
           type: 'dropdown',
           source: ['yellow4', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white']
@@ -5534,22 +5586,6 @@ export default class HandsonTable extends Component<any, any> {
       maxRows: 202,
       manualRowResize: true,
       manualColumnResize: true,
-      rowHeaders: true,
-      colHeaders: [
-        '菜品编码',
-        '菜品名称',
-        '门店部门select',
-        '是否打印副联time-picker',
-        '打印类型time-interval',
-        '分楼层打印1',
-        '使用时间段1',
-        '打印类型2',
-        '分楼层打印2',
-        '使用时间段2',
-        '打印类型3',
-        '分楼层打印3',
-        '使用时间段3',
-      ],
       manualRowMove: true,
       manualColumnMove: true,
       contextMenu: true,
@@ -5558,8 +5594,53 @@ export default class HandsonTable extends Component<any, any> {
       language: 'en-US',
       className: "htLeft htMiddle", // 通过class控制单元格内容显示的位置 Horizontal: htLeft, htCenter, htRight, htJustify; Vertical: htTop, htMiddle, htBottom
       fixedColumnsLeft: 2,
+      // 表头设置
+      colHeaders: function (col: any) {
+        let txt;
+        if (col === 0) {
+          txt = _this.state.isChecked ?
+            `<input type='checkbox' class=${prefixCls}-checkbox-header checked=checked />` :
+            `<input type='checkbox' class=${prefixCls}-checkbox-header />`
+          return txt;
+        } else {
+          return headerArr[col];
+        }
+      },
+      margeCells: true,
+      columnHeaderHeight: 60,
+      rowHeaders: false, // 显示列表头1，2，3
+      nestedHeaders: [
+        ['A', {label: 'B', colspan: 8}, 'C'],
+        ['D', {label: 'E', colspan: 4}, {label: 'F', colspan: 4}, 'G'],
+        ['H', {label: 'I', colspan: 2}, {label: 'J', colspan: 2}, {label: 'K', colspan: 2}, {label: 'L', colspan: 2}, 'M'],
+        ['N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W']
+      ],
       // 鼠标按下
       afterOnCellMouseDown: (event: any, coords: any, td: any) => {
+        // console.log('down0000-----', event.target.nodeName, td)
+        // checkbox
+        if (event.target.nodeName == 'INPUT' && event.target.className === `${prefixCls}-checkbox-header`) {
+          event.stopPropagation();
+        }
+      },
+      afterOnCellMouseUp: (event: any, coords: any, td: any) => {
+        // checkbox
+        if (event.target.nodeName == 'INPUT' && event.target.className === `${prefixCls}-checkbox-header`) {
+          let newData = _this.state.data;
+          let newCheckAll: any = [];
+          newData.forEach((item: any, index: any) => {
+            item.checked = !event.target.checked;
+            // 重置默认checked值
+            event.target.checked ? newCheckAll.splice(index, 1) : newCheckAll.push(index);
+          });
+          _this.setState({
+            isChecked: !event.target.checked,
+            data: [...newData],
+            checkedAllArr: [...newCheckAll],
+          }, () => {
+            hot.render();
+          });
+        }
       },
       //单元格失焦
       afterDeselect: () => {
@@ -5568,40 +5649,66 @@ export default class HandsonTable extends Component<any, any> {
         //   choType: null,
         // })
       },
-      afterChange: () => {
-        console.log('值改变------');
-        // this.setState({
-        //   choType: null,
-        // })
+      // 改变数据
+      afterChange: (changes: any, source: any) => {
+        // changes: row(行) prop(列)，oldVal(原始值)，newVal(更改后的值)
+        let newArr = cloneDeep(_this.state.checkedAllArr);
+        if (changes) {
+          const curChange = changes[0];
+          const index = indexOf(newArr, curChange[0]);
+          // 不存在 && true 保存
+          if (index === -1) {
+            curChange[3] && newArr.push(curChange[0]);
+          } else {
+            // 存在 && false 删除
+            !curChange[3] && newArr.splice(index, 1);
+          }
+        } else {
+          // 遍历默认checkbox值
+          _this.state.data.forEach((item: any, index: any) => {
+            if (item.checked && indexOf(newArr, index) === -1) {
+              newArr.push(index);
+            }
+          });
+        }
+        _this.setState({
+          checkedAllArr: [...newArr],
+          isChecked: newArr.length > 0 && newArr.length === _this.state.countRows,
+        }, () => {
+          hot.render();
+        });
       },
     });
+    
     if (!this.state.hot) {
       this.setState({
         hot,
         textParent: dom,
+        countRows: hot.countSourceRows(),
       });
     }
   }
 
-  // 自定义渲染select cellTypes
+  // select 自定义渲染
   public customRenderer(hotInstance: any, td: any, row: any, column: any, prop: any, value: any, cellProperties: any) {
     const _this = this;
     // @ts-ignore
     Handsontable.renderers.BaseRenderer.apply(this, arguments);
     const childs = td.querySelector(`.${prefixCls}-select-td`);
-    // console.log('value-----', hotInstance, value);
+    const { mode } = cellProperties;
+    // console.log('value----', value);
     // 是否已经存在select
     if (!childs) {
       let div: any = document.createElement('div');
       div.setAttribute('class', `${prefixCls}-select-td`);
       div.setAttribute('data-row', row);
       div.setAttribute('data-col', column);
-      div.innerHTML = value;
+      !mode ? div.innerHTML = value : div.innerHTML = value && isArray(value) ? `已选择${value.length}` : '';
 
       let arrowSpan: any = document.createElement('span');
       arrowSpan.setAttribute('class', `${prefixCls}-select-arrow`);
-      div.appendChild(arrowSpan);
-      
+      !mode && div.appendChild(arrowSpan);
+
       // 创建的div绑定click事件
       // @ts-ignore
       Handsontable.dom.addEvent(div, 'click', function (event: any) {
@@ -5609,28 +5716,25 @@ export default class HandsonTable extends Component<any, any> {
         const result = hotInstance.getActiveEditor();
         const tempcellProperties = hotInstance.getCellMeta(result?.row, result?.col);
         const { source, choType } = tempcellProperties;
-        // console.log('click--result---', result);
-        // console.log('click--tempcellProperties---', source, choType);
-
-        // 获取当前td中div的宽高，赋值给select默认样式 
-        const selectDom = div.querySelector(`.${prefixCls}-select-td`);
+        console.log('click--result---', source);
 
         // 存储当前点击的数据
         _this.setState({
           choType,
           dataSource: source,
+          mode,
           activeEditor: result,
-          defaultValue: null,
+          defaultValue: undefined,
           typeRefreshKey: Math.random(),
-          customStyle: { ..._this.state.customStyle, width: selectDom?.offsetWidth, height: selectDom?.offsetHeight },
+          customStyle: { width: div?.offsetWidth, height: div?.offsetHeight, zIndex: 999 },
         }, () => {
           // 监听滚动
-          _this.refreshDimensions(hotInstance, td, result.row, result.col);
+          _this.refreshDimensions(hotInstance, td, result.row, result.col, 'select');
           hotInstance.addHook('afterScrollHorizontally', () => {
-            _this.refreshDimensions(hotInstance, td, result.row, result.col);
+            _this.refreshDimensions(hotInstance, td, result.row, result.col, 'select');
           });
           hotInstance.addHook('afterScrollVertically', () => {
-            _this.refreshDimensions(hotInstance, td, result.row, result.col);
+            _this.refreshDimensions(hotInstance, td, result.row, result.col, 'select');
           });
         });
       });
@@ -5641,40 +5745,19 @@ export default class HandsonTable extends Component<any, any> {
       td.setAttribute('class', `${prefixCls}-td`);
       td.appendChild(div);
     } else {
-      childs.innerHTML = value;
+      !mode ?
+        childs.innerHTML = `${value}<span class='${prefixCls}-select-arrow'></span>` :
+        childs.innerHTML = value || '';
     }
     return td;
   }
 
-  // 判断位置
-  public checkEditorSection(hot: any, row: any, col: any) {
-    const totalRows = hot?.countRows();
-    let section = '';
-    if (row < hot.getSettings().fixedRowsTop) {
-      if (col < hot.getSettings().fixedColumnsLeft) {
-        section = 'top-left-corner';
-      } else {
-        section = 'top';
-      }
-    } else if (hot.getSettings().fixedRowsBottom && row >= totalRows - hot.getSettings().fixedRowsBottom) {
-      if (col < hot.getSettings().fixedColumnsLeft) {
-        section = 'bottom-left-corner';
-      } else {
-        section = 'bottom';
-      }
-    } else if (col < hot.getSettings().fixedColumnsLeft) {
-      section = 'left';
-    }
-    return section;
-  }
-
-  // 计算 上+左距离
-  public refreshDimensions(hot: any, td: any, row: any, col: any) {
+  // select 计算浮框位置
+  public refreshDimensions(hot: any, td: any, row: any, col: any, cls: any) {
     // 获取滚动时点击的td的正确位置offsetTop;滚动到一定位置，原来的位置会发生变化 需要重新获取
     let tempTD: any = this.getEditedCell(hot, row, col);
     if (!tempTD) return;
     // const result = hot.getActiveEditor();
-
     const currentOffset: any = offset(tempTD);
     const containerOffset: any = offset(hot.rootElement);
     const scrollableContainerTop = hot.view.wt.wtOverlays.topOverlay.mainTableScrollableElement;
@@ -5703,15 +5786,184 @@ export default class HandsonTable extends Component<any, any> {
       editLeft += 1;
     }
     // 获取td中自定义的div位置 及大小
-    const customDiv = tempTD.querySelector(`.${prefixCls}-select-td`);
-    // console.log('customDiv-----', customDiv.innerHTML);
+    const customDiv = tempTD.querySelector(`.${prefixCls}-${cls}-td`);
     // 存储最新的数据
     this.setState({
       position: { left: editLeft + customDiv?.offsetLeft, top: editTop + customDiv?.offsetTop },
-      customStyle: { width: `${customDiv?.offsetWidth || 0}px`, height: `${customDiv?.offsetHeight || 0}px` },
-      // defaultValue: result?.originalValue,
-      defaultValue: customDiv.innerHTML,
+      defaultValue: customDiv?.innerHTML || undefined,
+      customStyle: { ...this.state.customStyle, zIndex: 99 },
     });
+  }
+
+  // timeInterval 自定义渲染 
+  public customRendererTimeInterval(hotInstance: any, td: any, row: any, column: any, prop: any, value: any, cellProperties: any) {
+    const _this = this;
+    // @ts-ignore
+    Handsontable.renderers.BaseRenderer.apply(this, arguments);
+    const childs = td.querySelector(`.${prefixCls}-time-interval-td`);
+    // console.log('value----', value, childs);
+    // 是否已经存在select
+    if (!childs) {
+      let div: any = document.createElement('div');
+      div.setAttribute('class', `${prefixCls}-time-interval-td`);
+      div.setAttribute('data-row', row);
+      div.setAttribute('data-col', column);
+      ReactDOM.render(
+        <div className="choice-time-picker-box" style={{ display: 'flex' }}>
+          <span className="choice-time-picker choice-time-picker-start ant-time-picker" onClick={_this.handleClickTimeInterval.bind(_this, hotInstance, div, td, 'start')}>
+            <input
+              className="ant-time-picker-input"
+              style={{ width: '100%', boxSizing: 'border-box' }}
+              type="text"
+              placeholder="请选择时间"
+              value={value && value.length > 0 ? value[0] : null}
+            />
+            <span className="ant-time-picker-icon"></span>
+          </span>
+          <span style={{ margin: '4px 8px 0px 8px' }}>-</span>
+          <span className="choice-time-picker choice-time-picker-end ant-time-picker" onClick={_this.handleClickTimeInterval.bind(_this, hotInstance, div, td, 'end')}>
+            <input
+              className="ant-time-picker-input"
+              style={{ width: '100%', boxSizing: 'border-box' }}
+              type="text"
+              placeholder="请选择时间"
+              disabled={!value || (value && !value[0])}
+              value={value && value.length > 1 ? value[1] : null}
+            />
+            <span className="ant-time-picker-icon"></span>
+          </span>
+        </div>,
+        div
+      );
+      // @ts-ignore
+      Handsontable?.dom?.empty(td);
+
+      // td 添加class
+      td.setAttribute('class', `${prefixCls}-td`);
+      td.appendChild(div);
+    } else {
+      ReactDOM.render(
+        <div style={{ position: 'relative' }}>
+          <span className="choice-time-picker choice-time-picker-start ant-time-picker" onClick={_this.handleClickTimeInterval.bind(_this, hotInstance, childs, td, 'start')}>
+            <input className="ant-time-picker-input"
+              style={{ width: '100%' }}
+              type="text"
+              placeholder="请选择时间"
+              value={value && value.length > 0 ? value[0] : ''}
+            />
+            <span className="ant-time-picker-icon"></span>
+          </span>
+          <span style={{ margin: '4px 8px 0px 8px' }}>-</span>
+          <span className="choice-time-picker choice-time-picker-end ant-time-picker" onClick={_this.handleClickTimeInterval.bind(_this, hotInstance, childs, td, 'end')}>
+            <input
+              className="ant-time-picker-input"
+              style={{ width: '100%', boxSizing: 'border-box' }}
+              type="text"
+              placeholder="请选择时间"
+              disabled={!value || (value && !value[0])}
+              value={value && value.length > 1 ? value[1] : ''}
+            />
+            <span className="ant-time-picker-icon"></span>
+          </span>
+        </div>,
+        childs
+      );
+    }
+    return td;
+  }
+
+  // time interval click事件
+  public handleClickTimeInterval(hotInstance: any, div: any, td: any, clickType: any) {
+    const _this = this;
+    const result = hotInstance.getActiveEditor();
+    const tempcellProperties = hotInstance.getCellMeta(result?.row, result?.col);
+    const { source, choType } = tempcellProperties;
+    // console.log('click-----', result)
+    // 存储当前点击的数据
+    _this.setState({
+      startOpen: clickType === 'start',
+      endOpen: clickType === 'end',
+      choType,
+      dataSource: source,
+      activeEditor: result,
+      defaultValue: result?.originalValue,
+      typeRefreshKey: Math.random(),
+      customStyle: { ..._this.state.customStyle, width: td?.offsetWidth, height: td?.offsetHeight },
+    }, () => {
+      // 监听+计算浮框位置
+      _this.refreshDimensionsTimePicker(hotInstance, td, result.row, result.col, 'time-interval', clickType);
+      hotInstance.addHook('afterScrollHorizontally', () => {
+        _this.refreshDimensionsTimePicker(hotInstance, td, result.row, result.col, 'time-interval', clickType);
+      });
+      hotInstance.addHook('afterScrollVertically', () => {
+        _this.refreshDimensionsTimePicker(hotInstance, td, result.row, result.col, 'time-interval', clickType);
+      });
+    });
+  }
+
+  // timepicker 计算浮框位置
+  public refreshDimensionsTimePicker(hot: any, td: any, row: any, col: any, cls: any, clickType: any) {
+    // 获取滚动时点击的td的正确位置offsetTop;滚动到一定位置，原来的位置会发生变化 需要重新获取
+    let tempTD: any = this.getEditedCell(hot, row, col);
+    if (!tempTD) return;
+    const currentOffset: any = offset(tempTD);
+    const containerOffset: any = offset(hot.rootElement);
+    const scrollableContainerTop = hot.view.wt.wtOverlays.topOverlay.mainTableScrollableElement;
+    const scrollableContainerLeft = hot.view.wt.wtOverlays.leftOverlay.mainTableScrollableElement;
+    const totalRowsCount = hot.countRows();
+    const containerScrollTop = scrollableContainerTop !== window ? scrollableContainerTop.scrollTop : 0;
+    const containerScrollLeft = scrollableContainerLeft !== window ? scrollableContainerLeft.scrollLeft : 0;
+    const editorSection = this.checkEditorSection(hot, row, col);
+
+    const scrollTop = ['', 'left'].includes(editorSection) ? containerScrollTop : 0;
+    const scrollLeft = ['', 'top', 'bottom'].includes(editorSection) ? containerScrollLeft : 0;
+
+    const editTopModifier = currentOffset?.top === containerOffset?.top ? 0 : 1;
+    const settings = hot.getSettings();
+    const colHeadersCount = hot.hasColHeaders();
+    let editTop = currentOffset?.top - containerOffset.top - editTopModifier - scrollTop;
+    let editLeft = currentOffset?.left - containerOffset.left - 1 - scrollLeft;
+
+    if ((colHeadersCount && hot.getSelectedLast() && hot.getSelectedLast()[0] === 0) ||
+      (settings.fixedRowsBottom && hot.getSelectedLast() && hot.getSelectedLast()[0] === totalRowsCount - settings.fixedRowsBottom)) {
+      editTop += 1;
+    }
+    if (hot.getSelectedLast() && hot.getSelectedLast()[1] === 0) {
+      editLeft += 1;
+    }
+    // 获取td中自定义的div位置 及大小
+    const customDiv = tempTD.querySelector(`.${prefixCls}-time-interval-td`);
+    //  const result = hot.getActiveEditor();
+    // console.log('自定义页面 result-----', result?.originalValue);
+    // 存储最新的数据
+    this.setState({
+      // position:  { left: editLeft, top: editTop },
+      position: { left: editLeft + customDiv?.offsetLeft, top: editTop + customDiv?.offsetTop },
+      customStyle: { ...this.state.customStyle, zIndex: 99, width: Number(customDiv?.offsetWidth) + 30 }, // 挂载在当前浮框下时 需要将浮框的宽度=时间下拉框的宽度 否则时间下拉框会换行
+      // defaultValue: customDiv?.innerHTML,
+    });
+  }
+
+  // 判断位置
+  public checkEditorSection(hot: any, row: any, col: any) {
+    const totalRows = hot?.countRows();
+    let section = '';
+    if (row < hot.getSettings().fixedRowsTop) {
+      if (col < hot.getSettings().fixedColumnsLeft) {
+        section = 'top-left-corner';
+      } else {
+        section = 'top';
+      }
+    } else if (hot.getSettings().fixedRowsBottom && row >= totalRows - hot.getSettings().fixedRowsBottom) {
+      if (col < hot.getSettings().fixedColumnsLeft) {
+        section = 'bottom-left-corner';
+      } else {
+        section = 'bottom';
+      }
+    } else if (col < hot.getSettings().fixedColumnsLeft) {
+      section = 'left';
+    }
+    return section;
   }
 
   // 滚动时查找当前点击的td
@@ -5769,25 +6021,47 @@ export default class HandsonTable extends Component<any, any> {
   }
 
   render() {
-    const { choType, position, dataSource, hot, activeEditor, defaultValue, typeRefreshKey, customStyle, textParent } = this.state;
+    const {
+      choType,
+      position,
+      dataSource,
+      hot,
+      activeEditor,
+      defaultValue,
+      typeRefreshKey,
+      customStyle,
+      textParent,
+      startOpen,
+      endOpen,
+      mode,
+    } = this.state;
     const handleChange = (value: any) => {
-      // console.log('onchange------', value);
+      console.log('handlechange---value---', value);
+      let newVal = value;
+      // if (choType === 'MultipleSelect') {
+      //   newVal = value && isArray(value) && value.map((item: any) => (item.name));
+      // }
       // 更新单元格value值
-      hot.setDataAtRowProp(activeEditor.row, activeEditor.prop, value);
+      hot.setDataAtRowProp(activeEditor.row, activeEditor.prop, newVal);
+
     };
     return (
       <div>
         <div id="mytable" style={{ position: 'relative' }}>
           {choType &&
             <CustomComponent
+              type={choType}
               textParent={textParent}
               position={position}
               style={customStyle}
               dataSource={dataSource}
-              type={choType}
               defaultValue={defaultValue}
+              value={defaultValue}
               onChange={handleChange}
               typeRefreshKey={typeRefreshKey}
+              startOpen={startOpen}
+              endOpen={endOpen}
+              mode={mode}
             />}
         </div>
 

@@ -25,7 +25,6 @@ const BAD_VALUE_CLASS = 'htBadValue';
 function checkboxRenderer(instance, TD, row, col, prop, value, cellProperties, ...args) {
   getRenderer('base').apply(this, [instance, TD, row, col, prop, value, cellProperties, ...args]);
   registerEvents(instance);
-
   let input = createInput();
   const labelOptions = cellProperties.label;
   let badValue = false;
@@ -81,6 +80,9 @@ function checkboxRenderer(instance, TD, row, col, prop, value, cellProperties, .
   if (badValue) {
     TD.appendChild(document.createTextNode('#bad-value#'));
   }
+  // 添加自定义的class
+  cellProperties?.choClassName && addClass(TD, cellProperties?.choClassName);
+  // addClass(TD, cellProperties?.choClassName);
 
   if (!isListeningKeyDownEvent.has(instance)) {
     isListeningKeyDownEvent.set(instance, true);

@@ -509,6 +509,8 @@ CheckboxRenderer
 .handsontable .htCheckboxRendererInput {
   display: inline-block;
   vertical-align: middle;
+  width: 18px;
+  height: 21px;
 }
 .handsontable .htCheckboxRendererInput.noValue {
   opacity: 0.5;

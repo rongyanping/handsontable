@@ -11,6 +11,10 @@ export interface CustomComponentProps {
   dataSource?: any;
   defaultValue?: any;
   typeRefreshKey?: any;
+  startOpen?: boolean;
+  endOpen?: boolean;
+  value?: any;
+  mode?: any;
   onChange?: (val: any) => void;
 }
 export default function CustomComponent({
@@ -21,26 +25,27 @@ export default function CustomComponent({
   dataSource,
   defaultValue,
   typeRefreshKey,
+  startOpen,
+  endOpen,
+  value = undefined,
+  mode,
   onChange,
 }: CustomComponentProps) {
   const CurComponent = get(customTypes, type);
   const handleChange = (val: any) => {
     onChange && onChange(val);
   };
-  // return ReactDOM.render(
-  //   <CurComponent
-  //     className="choice-handsontable-input-holder"
-  //     key={typeRefreshKey}
-  //     position={position}
-  //     style={{ position: 'absolute', top: `${position?.top}px`, left: `${position?.left}px`, zIndex: 99, ...style }}
-  //     dataSource={dataSource}
-  //     onChange={handleChange}
-  //     defaultValue={defaultValue}
-  //   />,
-  //   textParent
-  // );
   return (
-    <div style={{ position: 'absolute', top: `${position?.top}px`, left: `${position?.left}px`, zIndex: 99, ...style }}>
+    <div 
+      className="choice-handsontable-holder-box" 
+      style={{ 
+        position: 'absolute', 
+        top: `${position?.top}px`, 
+        left: `${position?.left}px`, 
+        zIndex: 99, 
+        ...style 
+      }}
+    >
       <CurComponent
         className="choice-handsontable-input-holder"
         key={typeRefreshKey}
@@ -50,6 +55,10 @@ export default function CustomComponent({
         dataSource={dataSource}
         onChange={handleChange}
         defaultValue={defaultValue}
+        value={value}
+        startOpen={startOpen}
+        endOpen={endOpen}
+        mode={mode}
       />
     </div>
   )

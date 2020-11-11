@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useState } from 'react';
 import { Input, TimePicker } from 'antd';
 import Moment from 'moment';
 
@@ -15,17 +15,22 @@ interface Params {
   disabled?: boolean;
   onChange?: any;
   onSearch?: any;
+  startOpen?: boolean;
+  endOpen?: boolean;
 }
 /**
  * 时间选择
  * @param value
  */
-export default function TimeInterval({ value = ['', ''], style, key, onChange, disabled = false }: Params) {
+export default function TimeInterval({ value = ['', ''], style, key, onChange, disabled = false , startOpen = true, endOpen = false}: Params) {
   // console.log('时间组件里的数据', value);
   const [state, dispatch] = useReducer(
     reducer,
-    Object.assign({}, { start: value[0], end: value[1] })
+    Object.assign({}, { start: value && value[0], end: value && value[1] })
   );
+  const [isStartOpen, setIsStartOpen] = useState(startOpen);
+  const [isEndOpen, setIsEndOpen] = useState(endOpen);
+
   const { start, end } = state;
   const toChange = function (time: any, timeString: any) {
     if (!timeString) {
@@ -37,6 +42,15 @@ export default function TimeInterval({ value = ['', ''], style, key, onChange, d
     }
   };
   const toOpenChange = function (e: any) {
+    setIsStartOpen(e);
+    setIsEndOpen(false);
+    if (!e) {
+      onChange([start, end]);
+    }
+  };
+  const toOpenChange2 = function (e: any) {
+    setIsStartOpen(false);
+    setIsEndOpen(e);
     if (!e) {
       onChange([start, end]);
     }
@@ -83,27 +97,31 @@ export default function TimeInterval({ value = ['', ''], style, key, onChange, d
         inputReadOnly={true}
         allowClear
         format="HH:mm:ss"
-        style={{ width: 100, textAlign: 'center' }}
+        style={{ width: '40%', textAlign: 'center' }}
         placeholder="开始时间"
         value={start ? Moment(start, 'HH:mm:ss') : undefined}
         onChange={toChange}
         onOpenChange={toOpenChange}
         disabled={disabled}
+        open={isStartOpen}
+        getPopupContainer={(triggerNode: any) => triggerNode.parentElement}
       />
-      <span style={{ lineHeight: '32px', margin: '4px 8px 0px 27px' }}>-</span>
+      <span style={{ margin: '8px 8px 0px 8px' }}>-</span>
       <TimePicker
         disabled={!start}
         // @ts-ignore
         inputReadOnly
         allowClear
         format="HH:mm:ss"
-        style={{ width: 100, textAlign: 'center' }}
+        style={{ width: '40%', textAlign: 'center' }}
         placeholder="结束时间"
         disabledHours={disabledHours}
         disabledMinutes={disabledMinutes}
         value={end ? Moment(end, 'HH:mm:ss') : undefined}
         onChange={changeTime}
-        onOpenChange={toOpenChange}
+        onOpenChange={toOpenChange2}
+        open={isEndOpen}
+        getPopupContainer={(triggerNode: any) => triggerNode.parentElement}
       />
     </Input.Group>
   );

@@ -7494,7 +7494,7 @@ function objectEach(object, iteratee) {
 
 
 function getProperty(object, name) {
-  var names = name.split('.');
+  var names = name && name.split('.');
   var result = object;
   objectEach(names, function (nameItem) {
     result = result[nameItem];
