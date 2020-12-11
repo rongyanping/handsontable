@@ -1,0 +1,7 @@
+/* stylelint-disable */
+/* .handsontable thead th.hiddenHeader:not(:first-of-type) {
+  display: none;
+} */
+.handsontable thead th.hiddenHeader {
+  display: none;
+}

@@ -27,6 +27,7 @@ import { rangeEach, rangeEachReverse } from './helpers/number';
 import TableView from './tableView';
 import DataSource from './dataSource';
 import { translateRowsToColumns, cellMethodLookupFactory, spreadsheetColumnLabel } from './helpers/data';
+import { IndexMapper } from './translations'; // 增加nestedHeader插件ryp
 import { getTranslator } from './utils/recordTranslator';
 import { registerAsRootInstance, hasValidParameter, isRootInstance } from './utils/rootInstance';
 import { CellCoords, ViewportColumnsCalculator } from './3rdparty/walkontable/src';
@@ -94,10 +95,29 @@ export default function Core(rootElement, userSettings, rootInstanceSymbol = fal
 
   this.isDestroyed = false;
   this.rootElement = rootElement;
+   // start: 增加nestedHeader插件 ryp
+    /**
+   * The nearest document over container.
+   *
+   * @private
+   * @type {Document}
+   */
+  this.rootDocument = rootElement.ownerDocument;
+   /**
+   * Window object over container's document.
+   *
+   * @private
+   * @type {Window}
+   */
+  this.rootWindow = this.rootDocument.defaultView;
+  keyStateStartObserving(this.rootDocument);
+  // end: 增加nestedHeader插件ryp
   this.isHotTableEnv = isChildOfWebComponentTable(this.rootElement);
   EventManager.isHotTableEnv = this.isHotTableEnv;
 
-  this.container = document.createElement('div');
+  // this.container = document.createElement('div'); // 注释-ryp
+   // 增加nestedHeader插件ryp
+  this.container = this.rootDocument.createElement('div'); 
   this.renderCall = false;
 
   rootElement.insertBefore(this.container, rootElement.firstChild);
@@ -108,6 +128,16 @@ export default function Core(rootElement, userSettings, rootInstanceSymbol = fal
 
   this.guid = `ht_${randomString()}`; // this is the namespace for global events
 
+  // start: 增加nestedHeader插件ryp
+  /**
+   * Instance of index mapper which is responsible for managing the column indexes.
+   *
+   * @memberof Core#
+   * @member columnIndexMapper
+   * @type {IndexMapper}
+   */
+  this.columnIndexMapper = new IndexMapper();
+   // end: 增加nestedHeader插件ryp
   const recordTranslator = getTranslator(instance);
 
   dataSource = new DataSource(instance);

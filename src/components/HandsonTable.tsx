@@ -1,9 +1,12 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { Link } from 'react-router-dom';
 import { isArray, indexOf, findIndex, cloneDeep } from 'lodash';
 import 'antd/dist/antd.css';
 import { offset } from './common/handsontabletemp/src/helpers/dom/element';
 import Handsontable from './common/handsontabletemp/src/index.js';
+// import { offset } from '/handsontabletemp/src/helpers/dom/element';
+// import Handsontable from '/handsontabletemp/src/index.js';
 import CustomComponent from './common/antd-handsontable/index';
 import './index.css';
 
@@ -12,6 +15,24 @@ import './index.css';
  */
 
 const prefixCls = 'choice';
+// 实例化
+const headerArr = [
+  '',
+  '菜品编码',
+  '菜品名称',
+  '门店部门select',
+  '配置组',
+  '打印类型select-多选',
+  '是否打印副联time-interval',
+  '分楼层打印1',
+  '使用时间段1',
+  '打印类型2',
+  '分楼层打印2',
+  '使用时间段2',
+  '打印类型3',
+  '分楼层打印3',
+  '使用时间段3',
+];
 export default class HandsonTable extends Component<any, any> {
   choDom: React.RefObject<any>;
 
@@ -5447,6 +5468,11 @@ export default class HandsonTable extends Component<any, any> {
     };
   }
 
+  public componentWillMount() {
+    const start = performance.now();
+    console.log('handoson table start---', start);
+  }
+
   public componentDidMount() {
     const _this = this;
     const dom: any = document.getElementById('mytable');
@@ -5488,37 +5514,19 @@ export default class HandsonTable extends Component<any, any> {
       });
 
     })(Handsontable);
-    // 实例化
-    const headerArr = [
-      '',
-      '菜品编码',
-      '菜品名称',
-      '门店部门select',
-      '配置组',
-      '打印类型select-多选',
-      '是否打印副联time-interval',
-      '分楼层打印1',
-      '使用时间段1',
-      '打印类型2',
-      '分楼层打印2',
-      '使用时间段2',
-      '打印类型3',
-      '分楼层打印3',
-      '使用时间段3',
-    ];
     // @ts-ignore
     const hot = dom && new Handsontable(dom, {
+      // data: this.state.data.slice(0,5),
       data: this.state.data,
       columns: [
         {
-          // type: 'cho.Checkbox',
           data: 'checked',
           type: 'checkbox',
           choClassName: [`${prefixCls}-checkbox-td`, `${prefixCls}-checkbox-middle-center`],
         },
         {
           data: 'dishCode',
-          width: 80
+          width: 50
         },
         {
           type: 'text',
@@ -5531,11 +5539,23 @@ export default class HandsonTable extends Component<any, any> {
           width: 120,
         },
         {
-          // data: 'pk_printprogt',
+          data: 'pk_printprogt',
+          type: 'cho.Select',
+          source: ['101', '102', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
+          width: 320,
+        },
+        {
+          data: 'pk_printprogt',
           type: 'cho.MultipleSelect',
           mode: 'multiple', // selcet 多选类型
           source: ['101', '102', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
           width: 320,
+        },
+        {
+          data: 'pk_storedept',
+          type: 'cho.Select',
+          source: ['101', '102', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
+          width: 120,
         },
         {
           data: 'pk_pubitem',
@@ -5543,39 +5563,43 @@ export default class HandsonTable extends Component<any, any> {
           width: 320,
           height: 60,
         },
-        // {
-        //   data: 'pk_pubitem',
-        //   type: 'cho.TimeInterval',
-        //   // source: ['yellow2', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
-        //   width: 320,
-        // },
         {
-          type: 'dropdown',
-          source: ['yellow4', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white']
+          data: 'pk_printprogt',
+          type: 'cho.MultipleSelect',
+          mode: 'multiple', // selcet 多选类型
+          source: ['101', '102', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
+          width: 320,
         },
         {
-          type: 'dropdown',
-          source: ['yellow5', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white']
+          data: 'pk_storedept',
+          type: 'cho.Select',
+          source: ['101', '102', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
+          width: 120,
         },
         {
-          type: 'dropdown',
-          source: ['yellow6', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white']
+          data: 'pk_pubitem',
+          type: 'cho.TimeInterval',
+          width: 320,
+          height: 60,
         },
         {
-          type: 'dropdown',
-          source: ['yellow7', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white']
+          data: 'pk_printprogt',
+          type: 'cho.MultipleSelect',
+          mode: 'multiple', // selcet 多选类型
+          source: ['101', '102', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
+          width: 320,
         },
         {
-          type: 'dropdown',
-          source: ['yellow8', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white']
+          data: 'pk_storedept',
+          type: 'cho.Select',
+          source: ['101', '102', 'orange', 'green', 'blue', 'gray', 'black', 'white'],
+          width: 120,
         },
         {
-          type: 'dropdown',
-          source: ['yellow9', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white']
-        },
-        {
-          type: 'dropdown',
-          source: ['yellow10', 'red', 'orange', 'green', 'blue', 'gray', 'black', 'white']
+          data: 'pk_pubitem',
+          type: 'cho.TimeInterval',
+          width: 320,
+          height: 60,
         },
       ],
       stretchH: 'all',
@@ -5583,7 +5607,7 @@ export default class HandsonTable extends Component<any, any> {
       autoWrapRow: true,
       height: 600,
       rowHeights: '60px', // 单元格高低
-      maxRows: 202,
+      maxRows: 20,
       manualRowResize: true,
       manualColumnResize: true,
       manualRowMove: true,
@@ -5593,31 +5617,14 @@ export default class HandsonTable extends Component<any, any> {
       dropdownMenu: true,
       language: 'en-US',
       className: "htLeft htMiddle", // 通过class控制单元格内容显示的位置 Horizontal: htLeft, htCenter, htRight, htJustify; Vertical: htTop, htMiddle, htBottom
-      fixedColumnsLeft: 2,
-      // 表头设置
-      colHeaders: function (col: any) {
-        let txt;
-        if (col === 0) {
-          txt = _this.state.isChecked ?
-            `<input type='checkbox' class=${prefixCls}-checkbox-header checked=checked />` :
-            `<input type='checkbox' class=${prefixCls}-checkbox-header />`
-          return txt;
-        } else {
-          return headerArr[col];
-        }
-      },
-      margeCells: true,
+      // fixedColumnsLeft: 2, // TODO: 使用固定左侧1，2列 + nestedHeaders 会导致 合并单元格时显示错误
+      // mergeCells: true,
       columnHeaderHeight: 60,
       rowHeaders: false, // 显示列表头1，2，3
-      nestedHeaders: [
-        ['A', {label: 'B', colspan: 8}, 'C'],
-        ['D', {label: 'E', colspan: 4}, {label: 'F', colspan: 4}, 'G'],
-        ['H', {label: 'I', colspan: 2}, {label: 'J', colspan: 2}, {label: 'K', colspan: 2}, {label: 'L', colspan: 2}, 'M'],
-        ['N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W']
-      ],
+      colHeaders: true,
+      nestedHeaders: _this.customNestedHeader(headerArr, _this.state.isChecked),
       // 鼠标按下
       afterOnCellMouseDown: (event: any, coords: any, td: any) => {
-        // console.log('down0000-----', event.target.nodeName, td)
         // checkbox
         if (event.target.nodeName == 'INPUT' && event.target.className === `${prefixCls}-checkbox-header`) {
           event.stopPropagation();
@@ -5626,6 +5633,7 @@ export default class HandsonTable extends Component<any, any> {
       afterOnCellMouseUp: (event: any, coords: any, td: any) => {
         // checkbox
         if (event.target.nodeName == 'INPUT' && event.target.className === `${prefixCls}-checkbox-header`) {
+          // let newData = _this.state.data.slice(0,5);
           let newData = _this.state.data;
           let newCheckAll: any = [];
           newData.forEach((item: any, index: any) => {
@@ -5638,6 +5646,10 @@ export default class HandsonTable extends Component<any, any> {
             data: [...newData],
             checkedAllArr: [...newCheckAll],
           }, () => {
+            // 更新表头，否则表头的checkbox 状态无法改变
+            // hot.updateSettings({
+            //   nestedHeaders: _this.customNestedHeader(headerArr, !event.target.checked),
+            // });
             hot.render();
           });
         }
@@ -5665,21 +5677,31 @@ export default class HandsonTable extends Component<any, any> {
           }
         } else {
           // 遍历默认checkbox值
+          // _this.state.data.slice(0,5).forEach((item: any, index: any) => {
+          //   if (item.checked && indexOf(newArr, index) === -1) {
+          //     newArr.push(index);
+          //   }
+          // });
           _this.state.data.forEach((item: any, index: any) => {
             if (item.checked && indexOf(newArr, index) === -1) {
               newArr.push(index);
             }
           });
         }
+        // console.log('checked----', newArr , _this.state.countRows)
         _this.setState({
           checkedAllArr: [...newArr],
           isChecked: newArr.length > 0 && newArr.length === _this.state.countRows,
         }, () => {
+          // 更新表头，否则表头的checkbox 状态无法改变
+          // hot.updateSettings({
+          //   nestedHeaders: _this.customNestedHeader(headerArr, newArr.length > 0 && newArr.length === _this.state.countRows),
+          // });
           hot.render();
         });
       },
     });
-    
+
     if (!this.state.hot) {
       this.setState({
         hot,
@@ -5687,6 +5709,25 @@ export default class HandsonTable extends Component<any, any> {
         countRows: hot.countSourceRows(),
       });
     }
+  }
+
+  // 自定义嵌套表头
+  public customNestedHeader(headerArr: any, isChecked: any) {
+    return [
+      [
+        { label: isChecked ? `<input type='checkbox' class=${prefixCls}-checkbox-header checked='checked' />` : `<input type='checkbox' class=${prefixCls}-checkbox-header />`, rowspan: 2 },
+        { label: '菜品编码', rowspan: 2 },
+        { label: '菜品名称', rowspan: 2 },
+        { label: '门店部门', rowspan: 2 },
+        { label: '是否打印副联', rowspan: 2 },
+        // TODO:点击事件支持
+        { label: `<div class='${prefixCls}-header-item-space-between'><span class='${prefixCls}-header-item-one'>配置组1</span> <a class='${prefixCls}-header-item-two'>删除</a></div>`, colspan: 3 },
+        { label: `<div class='${prefixCls}-header-item-space-between'><span class='${prefixCls}-header-item-one'>配置组2</span> <a class='${prefixCls}-header-item-two'>删除</a></div>`, colspan: 3 },
+        { label: `<div class='${prefixCls}-header-item-space-between'><span class='${prefixCls}-header-item-one'>配置组3</span> <a class='${prefixCls}-header-item-two'>删除</a></div>`, colspan: 3 },
+
+      ],
+      ['打印类型', '分楼层打印', '使用时间段','打印类型', '分楼层打印', '使用时间段','打印类型', '分楼层打印', '使用时间段'],
+    ]
   }
 
   // select 自定义渲染
@@ -6043,10 +6084,12 @@ export default class HandsonTable extends Component<any, any> {
       // }
       // 更新单元格value值
       hot.setDataAtRowProp(activeEditor.row, activeEditor.prop, newVal);
-
     };
+    const end = performance.now();
+    console.log('handoson table end---', end);
     return (
-      <div>
+      <div style={{ marginTop: '60px' }}>
+        <Link to='/antdTable'>antd table</Link>
         <div id="mytable" style={{ position: 'relative' }}>
           {choType &&
             <CustomComponent

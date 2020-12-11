@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector, useStore } from "react-redux";
 
 import HandsonTable from './HandsonTable';
+import AntdTbale from './AntdTable';
 
 function App() {
   const stores = useStore();
@@ -10,7 +11,7 @@ function App() {
   });
   return (
     <>
-      <h3>Resume</h3>
+      {/* <Link to="/antdtable">跳转到antd table页面</Link> */}
       <HandsonTable />
     </>
   );

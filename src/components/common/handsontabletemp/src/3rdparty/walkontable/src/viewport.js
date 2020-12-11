@@ -366,7 +366,6 @@ class Viewport {
     if (this.wot.wtTable.holder.clientWidth !== this.wot.wtTable.holder.offsetWidth) {
       width -= getScrollbarWidth();
     }
-
     return new ViewportColumnsCalculator(
       width,
       pos,
@@ -396,10 +395,10 @@ class Viewport {
 
       if (!(this.areAllProposedVisibleRowsAlreadyRendered(proposedRowsVisibleCalculator) &&
           this.areAllProposedVisibleColumnsAlreadyRendered(proposedColumnsVisibleCalculator))) {
-        runFastDraw = false;
+            runFastDraw = false;
       }
     }
-
+   
     if (!runFastDraw) {
       this.rowsRenderCalculator = this.createRowsCalculator();
       this.columnsRenderCalculator = this.createColumnsCalculator();
@@ -457,6 +456,7 @@ class Viewport {
    *                    Returns `false` if at least one proposed visible column is not already rendered (meaning: redraw is needed)
    */
   areAllProposedVisibleColumnsAlreadyRendered(proposedColumnsVisibleCalculator) {
+    
     if (this.columnsVisibleCalculator) {
       if (proposedColumnsVisibleCalculator.startColumn < this.columnsRenderCalculator.startColumn ||
           (proposedColumnsVisibleCalculator.startColumn === this.columnsRenderCalculator.startColumn &&

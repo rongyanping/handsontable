@@ -391,6 +391,7 @@ function TableView(instance) {
         viewportOffset = 10;
       }
       if (typeof viewportOffset === 'number') {
+       
         calc.startColumn = Math.max(calc.startColumn - viewportOffset, 0);
         calc.endColumn = Math.min(calc.endColumn + viewportOffset, cols - 1);
       }
@@ -401,6 +402,7 @@ function TableView(instance) {
         calc.startRow = Math.max(calc.startColumn - offset, 0);
         calc.endColumn = Math.min(calc.endColumn + offset, cols - 1);
       }
+      // console.log('tableview----', calc.startColumn);
       instance.runHooks('afterViewportColumnCalculatorOverride', calc);
     },
     rowHeaderWidth: () => that.settings.rowHeaderWidth,

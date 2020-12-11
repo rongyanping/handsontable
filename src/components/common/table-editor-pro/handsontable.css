@@ -1,0 +1,145 @@
+/* stylelint-disable */
+
+/* handsontable 样式重置 */
+.colHeader {
+  display: inline-block !important;
+  width: 100%;
+}
+
+
+/* td里面的select */
+.choice-select-td {
+  width: 90%;
+  height: 30px;
+  margin: auto;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  outline: none;
+  outline: border-box;
+  user-select: none;
+  text-align: left;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 0 0 2px transparent;
+  justify-content: space-between;
+  /* position: relative; */
+}
+
+.choice-select-td-ipt {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  outline: border-box;
+  user-select: none;
+}
+
+.choice-select-td:hover {
+  border: 1px solid #1890ff;
+}
+
+.choice-select-td:hover .multiple-select-icon-clear {
+  display: inline-block;
+}
+
+.choice-select-td-active {
+  border: 1px solid #1890ff;
+}
+
+.choice-select-arrow {
+  position: relative;
+}
+
+.choice-select-arrow::after {
+  display: inline-block;
+  content: " ";
+  height: 10px;
+  width: 10px;
+  border-width: 0 1px 1px 0;
+  border-color: rgba(0, 0, 0, 0.25);
+  border-style: solid;
+  transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
+  transform-origin: center;
+  transition: transform .3s;
+  position: absolute;
+  top: 50%;
+  right: 11px;
+  transform-origin: 50% 50%;
+  margin-top: -6px;
+}
+
+.multiple-select-icon-clear {
+  display: none;
+  position: relative;
+  width: 12px;
+  height: 12px;
+}
+
+.multiple-select-icon-clear::after {
+  width: 12px;
+  height: 12px;
+  position: absolute;
+  top: 0px;
+  right: 11px;
+  background-color: rgba(0, 0, 0, 0.25);
+  color: white;
+  font-size: 12px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 9px;
+  cursor: pointer;
+  content: 'x';
+  z-index: 10;
+}
+
+
+
+/* checkbox */
+.choice-checkbox-td,
+.choice-checkbox-header {
+  width: 18px;
+  height: 21px;
+  vertical-align: middle;
+}
+
+.handsontable .choice-checkbox-middle-center {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.choice-checkbox-indeterminate {
+  position: relative;
+}
+
+.choice-checkbox-inner {
+  display: block;
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: #1890ff;
+  border: 0;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  pointer-events: none;
+  cursor: pointer;
+}
+
+/* 表头样式处理 */
+/* .choice-header-item-space-between {
+  text-align: center;
+  position: relative;
+}
+
+.choice-header-item-two {
+  position: absolute;
+  right: 11px;
+} */
+
+
+/* 通用样式 */
+input {
+  box-sizing: border-box !important;
+}

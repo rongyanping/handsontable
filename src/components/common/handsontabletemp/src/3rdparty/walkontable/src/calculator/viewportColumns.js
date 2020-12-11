@@ -1,5 +1,4 @@
 const privatePool = new WeakMap();
-
 /**
  * Calculates indexes of columns to render OR columns that are visible.
  * To redo the calculation, you need to create a new calculator.
@@ -73,6 +72,8 @@ class ViewportColumnsCalculator {
     this.needVerifyLastColumnWidth = true;
     this.stretchAllColumnsWidth = [];
 
+    this.count = 0;
+
     this.calculate();
   }
 
@@ -94,6 +95,7 @@ class ViewportColumnsCalculator {
 
     for (let i = 0; i < totalColumns; i++) {
       columnWidth = this._getColumnWidth(i);
+      
 
       if (sum <= scrollOffset && !onlyFullyVisible) {
         this.startColumn = i;
@@ -119,13 +121,11 @@ class ViewportColumnsCalculator {
         break;
       }
     }
-
+    
     if (this.endColumn === totalColumns - 1 && needReverse) {
       this.startColumn = this.endColumn;
-
       while (this.startColumn > 0) {
         const viewportSum = startPositions[this.endColumn] + columnWidth - startPositions[this.startColumn - 1];
-
         if (viewportSum <= viewportWidth || !onlyFullyVisible) {
           this.startColumn -= 1;
         }
@@ -135,14 +135,21 @@ class ViewportColumnsCalculator {
       }
     }
 
-    if (this.startColumn !== null && overrideFn) {
-      overrideFn(this);
-    }
-    this.startPosition = startPositions[this.startColumn];
-
+    const num = Math.random()*10000;
+    let temp = this.startColumn;
+    // if (this.startColumn !== null && overrideFn) {
+    //   console.log('num=========',num);
+    //   console.log('fn=========', overrideFn)
+    //   overrideFn(this);
+    // }
+    // this.startPosition = startPositions[this.startColumn];
+    this.startPosition = startPositions[temp];
+   
     if (this.startPosition === void 0) {
       this.startPosition = null;
     }
+    // this.startColumn 为null 导致 startPosition 为null 导致 页面渲染出错
+    // console.log('初始创建startPosition------', this.startPosition, startPositions,this.startColumn)
     if (this.startColumn !== null) {
       this.count = this.endColumn - this.startColumn + 1;
     }
