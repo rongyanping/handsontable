@@ -183,7 +183,7 @@ export default class Index extends React.Component<HandsonProps, any> {
   // 实例化
   public initTable(dom: any) {
     const { isEdit, fixedColumnsLeft, rowSelection } = this.props;
-    const newNestedHeaders = cloneDeep(this.props.nestedHeaders);
+    const newNestedHeaders: any = cloneDeep(this.props.nestedHeaders);
     isEdit && newNestedHeaders[0].unshift(...this.getChekboxHead());
     rowSelection && newNestedHeaders[1].unshift('');
     // const tempTop = document.body.offsetHeight - this.state.textParent?.getBoundingClientRect()?.top;
@@ -241,7 +241,7 @@ export default class Index extends React.Component<HandsonProps, any> {
       indeterminate: false,
       checkAll: e.target.checked,
     }, () => {
-      const newNestedHeaders2 = cloneDeep(nestedHeaders);
+      const newNestedHeaders2: any = cloneDeep(nestedHeaders);
       newNestedHeaders2[0].unshift(...this.getChekboxHead());
       // 更新表头，否则表头的checkbox 状态无法改变
       hot.updateSettings({
@@ -262,7 +262,7 @@ export default class Index extends React.Component<HandsonProps, any> {
       indeterminate: !!this.selectedRowKeys.length && this.selectedRowKeys.length < dataSource.length,
       checkAll: this.selectedRowKeys.length === dataSource.length,
     }, () => {
-      const newNestedHeaders = cloneDeep(nestedHeaders);
+      const newNestedHeaders: any = cloneDeep(nestedHeaders);
       isEdit && newNestedHeaders[0].unshift(...this.getChekboxHead());
       rowSelection && newNestedHeaders[1].unshift('');
       this.state.hot.updateSettings({
@@ -283,7 +283,7 @@ export default class Index extends React.Component<HandsonProps, any> {
       indeterminate: false,
       checkAll: false,
     }, () => {
-      const newNestedHeaders = cloneDeep(nestedHeaders);
+      const newNestedHeaders: any = cloneDeep(nestedHeaders);
       newNestedHeaders[0].unshift(...this.getChekboxHead());
       this.state.hot.updateSettings({
         nestedHeaders: newNestedHeaders,
@@ -296,7 +296,7 @@ export default class Index extends React.Component<HandsonProps, any> {
   // select 自定义渲染
   public customRenderer(hotInstance: any, td: any, row: any, column: any, prop: any, value: any, cellProperties: any) {
     const _this = this;
-    // eslint-disable-next-line prefer-rest-params
+    // @ts-ignore
     Handsontable.renderers.BaseRenderer.apply(this, arguments);
     const childs = td.querySelector(`.${prefixCls}-select-td`);
     const { mode, source, loopKey, loopName, allowClear, readOnly } = cellProperties;
@@ -369,6 +369,7 @@ export default class Index extends React.Component<HandsonProps, any> {
       }
       td.appendChild(childs);
     }
+    // @ts-ignore
     cleardom && Handsontable.dom.addEvent(cleardom, 'click', this.handleClear.bind(this, row, column, source));
     return td;
   }
@@ -392,7 +393,7 @@ export default class Index extends React.Component<HandsonProps, any> {
   // timeInterval 自定义渲染
   public customRendererTimeInterval(hotInstance: any, td: any, row: any, column: any, prop: any, value: any, cellProperties: any) {
     const _this = this;
-    // eslint-disable-next-line prefer-rest-params
+    // @ts-ignore
     Handsontable.renderers.BaseRenderer.apply(this, arguments);
     const childs = td.querySelector(`.${prefixCls}-time-interval-td`);
     const { readOnly } = cellProperties;
@@ -483,7 +484,7 @@ export default class Index extends React.Component<HandsonProps, any> {
   // 自定义render 内容
   public customRendererContent(hotInstance: any, td: any, row: any, column: any, prop: any, value: any, cellProperties: any) {
     const _this = this;
-    // eslint-disable-next-line prefer-rest-params
+    // @ts-ignore
     Handsontable.renderers.BaseRenderer.apply(this, arguments);
     const { render, width } = cellProperties;
     const content = render(value, _this.props.dataSource[row], row);
