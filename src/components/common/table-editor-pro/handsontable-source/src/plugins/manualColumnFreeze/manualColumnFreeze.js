@@ -103,7 +103,6 @@ class ManualColumnFreeze extends BasePlugin {
     if (!priv.afterFirstUse) {
       priv.afterFirstUse = true;
     }
-
     if (settings.fixedColumnsLeft === this.hot.countCols() || column <= settings.fixedColumnsLeft - 1) {
       return; // already fixed
     }
@@ -117,6 +116,7 @@ class ManualColumnFreeze extends BasePlugin {
     this.getMovePlugin().moveColumn(column, settings.fixedColumnsLeft);
 
     settings.fixedColumnsLeft += 1;
+    
   }
 
   /**

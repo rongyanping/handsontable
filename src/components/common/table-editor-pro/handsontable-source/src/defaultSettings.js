@@ -2772,6 +2772,10 @@ DefaultSettings.prototype = {
    * @default false
    */
   nestedRows: void 0,
+  /**
+   * 是否开启单元格的鼠标事件 目前仅控制:afterOnCellMouseDown,afterOnCellMouseUp
+   */
+  startCellMouseEvent: false,
 };
 
 export default DefaultSettings;

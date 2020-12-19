@@ -189,6 +189,7 @@ class LeftOverlay extends Overlay {
     if (!this.areElementSizesAdjusted) {
       this.adjustElementsSize();
     }
+    console.log('applyToDOM-------',typeof this.wot.wtViewport.columnsRenderCalculator.startPosition === 'number', total);
     if (typeof this.wot.wtViewport.columnsRenderCalculator.startPosition === 'number') {
       this.spreader.style.left = `${this.wot.wtViewport.columnsRenderCalculator.startPosition}px`;
 

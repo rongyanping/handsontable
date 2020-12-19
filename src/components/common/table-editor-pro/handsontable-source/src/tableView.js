@@ -235,6 +235,7 @@ function TableView(instance) {
     selections: that.instance.selection.highlight,
     hideBorderOnMouseDownOver: () => that.settings.fragmentSelection,
     onCellMouseDown: (event, coords, TD, wt) => {
+      if (!that.settings.startCellMouseEvent) return; // 是否开启鼠标事件 ryp
       const blockCalculations = {
         row: false,
         column: false,
@@ -245,7 +246,7 @@ function TableView(instance) {
 
       that.activeWt = wt;
       isMouseDown = true;
-      
+
       instance.runHooks('beforeOnCellMouseDown', event, coords, TD, blockCalculations);
 
       if (isImmediatePropagationStopped(event)) {
@@ -316,6 +317,7 @@ function TableView(instance) {
       that.activeWt = that.wt;
     },
     onCellMouseUp: (event, coords, TD, wt) => {
+      if (!that.settings.startCellMouseEvent) return; // 是否开启鼠标事件 ryp
       that.activeWt = wt;
       instance.runHooks('beforeOnCellMouseUp', event, coords, TD);
 
@@ -382,7 +384,13 @@ function TableView(instance) {
       let viewportOffset = that.settings.viewportColumnRenderingOffset;
 
       if (viewportOffset === 'auto' && that.settings.fixedColumnsLeft) {
-        viewportOffset = 10;
+        // ryp---start
+        if (that.settings.fixedColumnsRight) {
+          viewportOffset = 20;
+        } else {
+          viewportOffset = 10;
+        } // ---end
+        // viewportOffset = 10;
       }
       if (typeof viewportOffset === 'number') {
 

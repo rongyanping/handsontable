@@ -25,7 +25,6 @@ class Walkontable {
 
     // this is the namespace for global events
     this.guid = `wt_${randomString()}`;
-
     // bootstrap from settings
     if (settings.cloneSource) {
       this.cloneSource = settings.cloneSource;
@@ -98,7 +97,6 @@ class Walkontable {
     if (!topmost) {
       return this.wtTable.getCell(coords);
     }
-
     const totalRows = this.wtSettings.getSetting('totalRows');
     const fixedRowsTop = this.wtSettings.getSetting('fixedRowsTop');
     const fixedRowsBottom = this.wtSettings.getSetting('fixedRowsBottom');

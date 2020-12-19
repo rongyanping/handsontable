@@ -362,6 +362,8 @@ class Viewport {
       pos += fixedColumnsWidth;
       width -= fixedColumnsWidth;
     }
+    // ryp---start
+    const fixedColumnsRight = this.wot.getSetting('fixedColumnsRight');
     if (this.wot.wtTable.holder.clientWidth !== this.wot.wtTable.holder.offsetWidth) {
       width -= getScrollbarWidth();
     }
