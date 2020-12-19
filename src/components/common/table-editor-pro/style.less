@@ -1,5 +1,25 @@
 .choice-handle-wrap {
+
   // background-color: green;
+  &::-webkit-scrollbar {
+    width: 1px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 1px;
+    background: transparent;
+    /*-webkit-box-shadow:inset006pxrgba(0,0,0,0.5);*/
+  }
+}
+
+.choice-handle-wrap::-webkit-scrollbar {
+  width: 1px;
+}
+
+.choice-handle-wrap::-webkit-scrollbar-thumb {
+  border-radius: 1px;
+  background: transparent;
+  /*-webkit-box-shadow:inset006pxrgba(0,0,0,0.5);*/
 }
 
 /* timeInterval */
@@ -50,7 +70,7 @@
 }
 
 // 尾部
-.footer-box{
+.footer-box {
   display: flex;
   justify-content: space-between;
   margin-top: 5px;

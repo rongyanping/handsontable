@@ -1,17 +1,19 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { cloneDeep, throttle } from 'lodash';
-import { Spin, Pagination } from 'antd';
+import { cloneDeep, remove, indexOf } from 'lodash';
+import { Spin, Pagination, Checkbox, Popconfirm } from 'antd';
 import 'antd/dist/antd.css';
 // @ts-ignore
 import Handsontable from './handsontable-source/src';
 import CustomComponent from './custom-components';
 // @ts-ignore
 import { offset, empty, addClass } from './handsontable-source/src/helpers/dom/element';
+import { TABLE_HEIGHT } from './constvalue';
 import './handsontable.css';
 import './style.less';
 
@@ -32,16 +34,18 @@ export interface HandsonProps {
   height?: number; // 表格整体高度
   isEdit?: boolean; // 是否处于编辑状态
   fixedColumnsLeft?: number; // 左侧固定的列数
+  rowSelection?: any; // 增加checkbox选择行
 
   pagination?: any;
   onChangePagination?: Function; // 点击分页
   onShowSizeChange?: Function; // 分页 改变每页条数
   onChangeCell?: Function; // 单元格onChange
-  onChangeCheckBox?: Function; // checkbox改变值触发的方法
+
 }
 
 const prefixCls = 'choice';
-const diffHeight = 80;
+const diffHeight = -50;
+const newHeight = document.body.clientHeight - TABLE_HEIGHT - diffHeight;
 export default class Index extends React.Component<HandsonProps, any> {
   public static defaultProps = {
     rowKey: 'index',
@@ -55,7 +59,11 @@ export default class Index extends React.Component<HandsonProps, any> {
 
   public renderTime: any;
 
-  public isChecked: boolean;
+  public rowSelectionColumns: any;
+
+  public selectedRowKeys: any[];
+
+  public selectedRows: any[];
 
   public constructor(props: HandsonProps) {
     super(props);
@@ -63,9 +71,21 @@ export default class Index extends React.Component<HandsonProps, any> {
     this.destoryHot = props.destoryHot || false; // 判断当前是菜品还是做法组件
     this.tablerefs = null;
     this.renderTime = null;
-    this.isChecked = false; // 表头的checkbox 状态
+    this.selectedRowKeys = props.rowSelection?.selectedRowKeys || []; // 选中的行的key
+    this.selectedRows = []; // 所有选中的行
+    this.rowSelectionColumns = (rowKey: any) => {
+      return (
+        {
+          data: rowKey,
+          type: 'cho.Render',
+          choClassName: [`${prefixCls}-checkbox-td`, `${prefixCls}-checkbox-middle-center`],
+          width: 80,
+          render: (text: any, rows: any) => (<Checkbox checked={indexOf(this.selectedRowKeys, text) > -1} onChange={this.onChangeCheckbox.bind(this, text, rows)} />),
+        }
+      );
+    }; // checkbox列
+
     this.state = {
-      data: [],
       choType: undefined, // 自定义的column类型
       position: null, // 浮框的定位位置
       hot: null, // handsontable实例
@@ -85,9 +105,8 @@ export default class Index extends React.Component<HandsonProps, any> {
       startOpen: true, // timeInterval 打开/关闭
       endOpen: false,
 
-      checkedAllArr: [],
-      // eslint-disable-next-line react/no-unused-state
-      rowSelectionData: [], // 选中的row的数据
+      indeterminate: false,
+      checkAll: false,
 
       updateLoading: false, // 更新配置后加载效果
     };
@@ -114,65 +133,69 @@ export default class Index extends React.Component<HandsonProps, any> {
 
   public componentWillReceiveProps(nextProps: any) {
     const { updateTableSettings, dataSource, nestedHeaders, columns, height, isEdit,
-      fixedColumnsLeft,
+      fixedColumnsLeft, rowSelection, rowKey,
     } = nextProps;
-    // 更新配置
-    const newNestedHeaders = cloneDeep(nestedHeaders);
-    isEdit && newNestedHeaders[0].unshift(...this.getChekboxHead(false));
-    // console.log('destoryHot----', this.destoryHot !== destoryHot);
     if (this.isUpdateTable !== updateTableSettings) {
       // console.log('isUpdateTable----', this.isUpdateTable !== updateTableSettings);
       // console.log('columns----', columns);
       // console.log('dataSource----', dataSource);
       // console.log('newNestedHeaders----', newNestedHeaders);
+      // 更新配置
+      const newNestedHeaders = cloneDeep(nestedHeaders);
+      isEdit && newNestedHeaders[0].unshift(...this.getChekboxHead());
+      rowSelection && newNestedHeaders[1].unshift('');
       this.setState({
         updateLoading: true,
       });
-      const tempTop = document.body.offsetHeight - this.state.textParent?.getBoundingClientRect()?.top;
-      const allRowHeight = (dataSource?.length * 60 + newNestedHeaders.length * 30 + 10) < 200 ? 200 : dataSource?.length * 60 + newNestedHeaders.length * 30 + 10;
+      // const tempTop = document.body.offsetHeight - this.state.textParent?.getBoundingClientRect()?.top;
+      // const allRowHeight = (dataSource?.length * 60 + newNestedHeaders.length * 30 + 10) < 200 ? 200 : dataSource?.length * 60 + newNestedHeaders.length * 30 + 10;
       setTimeout(() => {
-        this.state.hot.updateSettings({
-          columns,
-          data: dataSource,
-          nestedHeaders: newNestedHeaders,
-          height: height || (allRowHeight < tempTop ? allRowHeight : tempTop - diffHeight) || 200,
-          fixedColumnsLeft,
-        });
-        this.isUpdateTable = updateTableSettings;
+        this.selectedRowKeys = [];
+        this.selectedRows = [];
         this.setState({
-          checkedAllArr: [],
           choType: null,
           updateLoading: false,
+          checkAll: false,
+          indeterminate: false,
+        });
+        this.state.hot.updateSettings({
+          columns: rowSelection ? [this.rowSelectionColumns(rowKey), ...columns] : columns,
+          data: dataSource,
+          nestedHeaders: newNestedHeaders,
+          height: height || newHeight || 200,
+          // height: height || (allRowHeight < tempTop ? allRowHeight - diffHeight : tempTop - diffHeight) || 200,
+          fixedColumnsLeft,
         });
       }, 50);
+      this.isUpdateTable = updateTableSettings;
     }
   }
 
   public componentDidUpdate() {
-    console.log('renderTime------', new Date().getTime() - this.renderTime);
+    // console.log('renderTime------', new Date().getTime() - this.renderTime);
   }
 
   public componentWillUnmount() {
-    console.log('WillUnmount====');
+    // console.log('WillUnmount====');
     this.state.hot?.destroy();
   }
 
   // 实例化
   public initTable(dom: any) {
-    const _this = this;
-    const { isEdit, fixedColumnsLeft } = this.props;
+    const { isEdit, fixedColumnsLeft, rowSelection } = this.props;
     const newNestedHeaders = cloneDeep(this.props.nestedHeaders);
-    isEdit && newNestedHeaders[0].unshift(...this.getChekboxHead(false));
-    const tempTop = document.body.offsetHeight - this.state.textParent?.getBoundingClientRect()?.top;
-    const allRowHeight = this.props.dataSource?.length * 60 + newNestedHeaders.length * 30 + 10;
+    isEdit && newNestedHeaders[0].unshift(...this.getChekboxHead());
+    rowSelection && newNestedHeaders[1].unshift('');
+    // const tempTop = document.body.offsetHeight - this.state.textParent?.getBoundingClientRect()?.top;
+    // const allRowHeight = this.props.dataSource?.length * 60 + newNestedHeaders.length * 30 + 10;
     // @ts-ignore
     const hot = dom && new Handsontable(dom, {
       data: this.props.dataSource,
-      columns: this.props.columns,
+      columns: this.props.rowSelection ? [this.rowSelectionColumns(this.props.rowKey), ...this.props.columns] : this.props.columns,
       colHeaders: true,
       nestedHeaders: newNestedHeaders,
-      // width: 1100,
-      height: this.props.height || (allRowHeight < tempTop ? allRowHeight : tempTop - diffHeight) || 200,
+      height: this.props.height || newHeight || 200,
+      // height: this.props.height || (allRowHeight < tempTop ? allRowHeight : tempTop - diffHeight) || 200,
       rowHeights: '60px', // 单元格高低
       // maxRows: 200,
       fixedColumnsLeft,
@@ -180,6 +203,7 @@ export default class Index extends React.Component<HandsonProps, any> {
       className: 'htLeft htMiddle', // 通过class控制单元格内容显示的位置 Horizontal: htLeft, htCenter, htRight, htJustify; Vertical: htTop, htMiddle, htBottom
       cell: this.props.tablecell,
       autoScroll: false, // 点击的时候 是否自动滚动
+      startCellMouseEvent: true, // 是否开启鼠标事件 如afterOnCellMouseDown,afterOnCellMouseUp;若不开启会导致hotInstance.getActiveEditor方法无效
       autoWrapRow: true,
       stretchH: 'all',
       manualRowResize: false,
@@ -189,80 +213,84 @@ export default class Index extends React.Component<HandsonProps, any> {
       contextMenu: false,
       filters: false,
       dropdownMenu: false,
-      // 鼠标按下
-      afterOnCellMouseDown: (event: any) => {
-        console.log('down---', event);
-        // checkbox
-        if (event.target.nodeName === 'INPUT' && event.target.className === `${prefixCls}-checkbox-header`) {
-          event.stopPropagation();
-        }
-      },
-      afterOnCellMouseUp: (event: any, coords: any) => {
-        console.log('up----');
-        
-        const { dataSource, nestedHeaders, rowKey, onChangeCheckBox } = _this.props;
-        const newData: any = dataSource || [];
-        let rowsData = cloneDeep(_this.state.rowSelectionData) || [];
-        let newCheckAll: any = cloneDeep(_this.state.checkedAllArr) || [];
-        let newIsChecked = false;
-        const { row } = coords;
-        // tableheader中的checkbox
-        if (event.target.nodeName === 'INPUT' && event.target?.type === 'checkbox' && row < 0) {
-          newCheckAll = [];
-          rowsData = [];
-          newData?.forEach((item: any, index: any) => {
-            item.checked = !event.target.checked;
-            // 重置默认checked值
-            event.target.checked ? newCheckAll.splice(index, 1) : rowKey && newCheckAll.push(item[rowKey]);
-            event.target.checked ? rowsData.splice(index, 1) : rowKey && rowsData.push(item);
-          });
-          newIsChecked = !event.target.checked;
-        }
-        // tablebody中的checkbox
-        if (event.target.nodeName === 'INPUT' && event.target?.type === 'checkbox' && row >= 0) {
-          event.target.checked ? newCheckAll.splice(row, 1) : rowKey && newCheckAll.push(newData[row][rowKey]); // 判断当前点击的状态 是否要加入到checkAll中
-          event.target.checked ? rowsData.splice(row, 1) : rowKey && rowsData.push(newData[row]);
-
-          newData[row].checked = !event.target.checked;
-          newIsChecked = newCheckAll.length > 0 && newCheckAll.length === hot?.countRows();
-        }
-        // 更新checkbox状态
-        if (event.target.nodeName === 'INPUT' && event.target?.type === 'checkbox') {
-          onChangeCheckBox && onChangeCheckBox([...newCheckAll], rowsData);
-          _this.isChecked = newIsChecked;
-          _this.setState({
-            checkedAllArr: [...newCheckAll],
-            rowSelectionData: [...rowsData],
-            data: [...newData],
-          }, () => {
-            const newNestedHeaders2 = cloneDeep(nestedHeaders);
-            newNestedHeaders2[0].unshift(...this.getChekboxHead(newIsChecked));
-            // 更新表头，否则表头的checkbox 状态无法改变
-            hot.updateSettings({
-              nestedHeaders: newNestedHeaders2,
-              data: [...newData],
-            });
-          });
-        }
-      },
     });
     return hot;
   }
 
-  // 获取第一列的checkbox 表头
-  public getChekboxHead(isChecked: any) {
+  // 获取checkbox 表头
+  public getChekboxHead() {
     return [{
       // eslint-disable-next-line no-nested-ternary
-      label: isChecked ?
-        `<input type='checkbox' class=${prefixCls}-checkbox-header checked='checked' />` :
-        this.state.checkedAllArr?.length > 0 ?
-          `<span class='${prefixCls}-checkbox-indeterminate'>
-            <input type='checkbox' class=${prefixCls}-checkbox-header />
-            <span class='${prefixCls}-checkbox-inner'></span>
-          </span>` :
-          `<input type='checkbox' class=${prefixCls}-checkbox-header />`,
+      label: <Checkbox
+        indeterminate={this.state.indeterminate}
+        onChange={this.onCheckAllChange.bind(this)}
+        checked={this.state.checkAll}
+      />,
       rowspan: 2,
     }];
+  }
+
+  // 表头checkbox all
+  public onCheckAllChange(e: any) {
+    const { nestedHeaders, dataSource, rowKey, rowSelection, columns } = this.props;
+    const { hot } = this.state;
+    this.renderTime = new Date().getTime();
+    e.target.checked ? this.selectedRowKeys = dataSource.map((el: any) => (rowKey && el[rowKey])) : this.selectedRowKeys = [];
+    e.target.checked ? this.selectedRows = cloneDeep(dataSource) : this.selectedRows = [];
+    this.setState({
+      indeterminate: false,
+      checkAll: e.target.checked,
+    }, () => {
+      const newNestedHeaders2 = cloneDeep(nestedHeaders);
+      newNestedHeaders2[0].unshift(...this.getChekboxHead());
+      // 更新表头，否则表头的checkbox 状态无法改变
+      hot.updateSettings({
+        nestedHeaders: newNestedHeaders2,
+        columns: [this.rowSelectionColumns(rowKey), ...columns],
+      });
+    });
+    rowSelection?.onChange(this.selectedRowKeys, this.selectedRows);
+  }
+
+  // table body checkbox
+  public onChangeCheckbox(key: any, row: any, e: any) {
+    this.renderTime = new Date().getTime();
+    const { rowSelection, rowKey, dataSource, nestedHeaders, isEdit, columns } = this.props;
+    e.target.checked ? this.selectedRowKeys.push(key) : remove(this.selectedRowKeys, (el: any) => (el === key));
+    e.target.checked ? this.selectedRows.push(row) : remove(this.selectedRows, (el: any) => (rowKey && el[rowKey] === key));
+    this.setState({
+      indeterminate: !!this.selectedRowKeys.length && this.selectedRowKeys.length < dataSource.length,
+      checkAll: this.selectedRowKeys.length === dataSource.length,
+    }, () => {
+      const newNestedHeaders = cloneDeep(nestedHeaders);
+      isEdit && newNestedHeaders[0].unshift(...this.getChekboxHead());
+      rowSelection && newNestedHeaders[1].unshift('');
+      this.state.hot.updateSettings({
+        nestedHeaders: newNestedHeaders,
+        columns: [this.rowSelectionColumns(rowKey), ...columns],
+      });
+      // this.state.hot.render();
+    });
+    rowSelection?.onChange(this.selectedRowKeys, this.selectedRows);
+  }
+
+  // 清空选中的单元格
+  public handleClearAllCheck() {
+    const { rowSelection, nestedHeaders, columns, rowKey } = this.props;
+    this.selectedRowKeys = [];
+    this.selectedRows = [];
+    this.setState({
+      indeterminate: false,
+      checkAll: false,
+    }, () => {
+      const newNestedHeaders = cloneDeep(nestedHeaders);
+      newNestedHeaders[0].unshift(...this.getChekboxHead());
+      this.state.hot.updateSettings({
+        nestedHeaders: newNestedHeaders,
+        columns: [this.rowSelectionColumns(rowKey), ...columns],
+      });
+    });
+    rowSelection?.onChange(this.selectedRowKeys, this.selectedRows);
   }
 
   // select 自定义渲染
@@ -380,7 +408,7 @@ export default class Index extends React.Component<HandsonProps, any> {
       return td;
     }
     // console.log('time interval value----', value, childs);
-    // console.log('time interval value----', value);
+    // console.log('time interval value----', column, value);
     // 是否已经存在select
     if (!childs) {
       const div: any = document.createElement('div');
@@ -393,7 +421,7 @@ export default class Index extends React.Component<HandsonProps, any> {
             className="choice-time-picker-input"
             type="text"
             placeholder="请选择时间"
-            value={value && value.length > 0 ? value[0] : null}
+            value={value && value.length > 0 ? (value[0] || '') : ''}
             onClick={_this.handleClickTimeInterval.bind(_this, hotInstance, div, td, 'start')}
           />
           <span style={{ margin: '4px 8px 0px 8px' }}>-</span>
@@ -402,7 +430,7 @@ export default class Index extends React.Component<HandsonProps, any> {
             type="text"
             placeholder="请选择时间"
             disabled={!value || (value && !value[0])}
-            value={value && value.length > 1 ? value[1] : null}
+            value={value && value.length > 1 ? (value[1] || '') : ''}
             onClick={_this.handleClickTimeInterval.bind(_this, hotInstance, childs, td, 'end')}
           />
         </div>,
@@ -423,7 +451,7 @@ export default class Index extends React.Component<HandsonProps, any> {
             className="choice-time-picker-input"
             type="text"
             placeholder="请选择时间"
-            value={value && value.length > 0 ? value[0] : null}
+            value={value && value.length > 0 ? (value[0] || '') : ''}
             onClick={_this.handleClickTimeInterval.bind(_this, hotInstance, childs, td, 'start')}
           />
           <span style={{ margin: '4px 8px 0px 8px' }}>-</span>
@@ -432,7 +460,7 @@ export default class Index extends React.Component<HandsonProps, any> {
             type="text"
             placeholder="请选择时间"
             disabled={!value || (value && !value[0])}
-            value={value && value.length > 1 ? value[1] : null}
+            value={value && value.length > 1 ? (value[1] || '') : ''}
             onClick={_this.handleClickTimeInterval.bind(_this, hotInstance, childs, td, 'end')}
           />
         </div>,
@@ -457,17 +485,16 @@ export default class Index extends React.Component<HandsonProps, any> {
     const _this = this;
     // eslint-disable-next-line prefer-rest-params
     Handsontable.renderers.BaseRenderer.apply(this, arguments);
-    const { render } = cellProperties;
+    const { render, width } = cellProperties;
     const content = render(value, _this.props.dataSource[row], row);
     if (React.isValidElement(content)) {
       ReactDOM.render(
-        <div style={{ minWidth: '130px' }}>
-          {content}
-        </div>,
+        content,
         td
       );
     }
-    // console.log('render----', content, td);
+    // width+两边的padding 16*2
+    td.style.width = `${width + 32}px`;
     // 添加自定义的class
     cellProperties?.choClassName && addClass(td, cellProperties?.choClassName);
     return td;
@@ -554,7 +581,6 @@ export default class Index extends React.Component<HandsonProps, any> {
       const { row, col } = _this.state.activeEditor;
       // 获取滚动时点击的td的正确位置offsetTop;滚动到一定位置，原来的位置会发生变化 需要重新获取
       const tempTD = this.getEditedCell(hot, row, col);
-      console.log('22222222', tempTD);
       if (!tempTD) return;
       const customDiv = tempTD?.firstChild;
 
@@ -573,8 +599,8 @@ export default class Index extends React.Component<HandsonProps, any> {
       const editTopModifier = currentOffset?.top === containerOffset?.top ? 0 : 1;
       const settings = hot.getSettings();
       const colHeadersCount = hot.hasColHeaders();
-      let editTop = currentOffset?.top - containerOffset.top - editTopModifier - scrollTop;
-      let editLeft = currentOffset?.left - containerOffset.left - 1 - scrollLeft;
+      let editTop: any = currentOffset?.top - containerOffset.top - editTopModifier - scrollTop;
+      let editLeft: any = currentOffset?.left - containerOffset.left - 1 - scrollLeft;
 
       if ((colHeadersCount && hot.getSelectedLast() && hot.getSelectedLast()[0] === 0) ||
         (settings.fixedRowsBottom && hot.getSelectedLast() && hot.getSelectedLast()[0] === totalRowsCount - settings.fixedRowsBottom)) {
@@ -584,8 +610,8 @@ export default class Index extends React.Component<HandsonProps, any> {
         editLeft += 1;
       }
       // 查找当前点击的单元格的信息
-      const result = hot.getActiveEditor();
-      const tempcellProperties = hot.getCellMeta(result?.row, result?.col);
+      // const result = hot.getActiveEditor();
+      // const tempcellProperties = hot.getCellMeta(result?.row, result?.col);
       // const { source, choType, showCodeAndName, loopKey, loopName, mode } = tempcellProperties;
 
       // left值+宽度 > table的宽度表示超出了表格的宽度 需要隐藏浮框; 否则展示浮框
@@ -742,12 +768,10 @@ export default class Index extends React.Component<HandsonProps, any> {
       loopKey,
       loopName,
       value,
-      checkedAllArr,
-      data,
       showCodeAndName,
       updateLoading,
     } = this.state;
-    const { loading, pagination, onChangePagination, onShowSizeChange, onChangeCell, onChangeCheckBox,
+    const { loading, pagination, onChangePagination, onShowSizeChange, onChangeCell,
     } = this.props;
     // 组件change事件
     const handleChange = (val: any) => {
@@ -762,22 +786,7 @@ export default class Index extends React.Component<HandsonProps, any> {
       const curData = { row: activeEditor?.row, col: activeEditor?.col, prop: activeEditor.prop, value: val };
       onChangeCell && onChangeCell(allData, curData);
     };
-    // 清空选中的单元格
-    const handleClearChecked = () => {
-      this.isChecked = false;
-      this.setState({
-        checkedAllArr: [],
-        data: data?.map((item: any) => ({ ...item, checked: false })),
-      }, () => {
-        const newNestedHeaders = cloneDeep(this.props?.nestedHeaders);
-        newNestedHeaders[0].unshift(...this.getChekboxHead(false));
-        hot.updateSettings({
-          nestedHeaders: newNestedHeaders,
-          data: data?.map((item: any) => ({ ...item, checked: false })),
-        });
-      });
-      onChangeCheckBox && onChangeCheckBox([], []);
-    };
+
     const handleChangePage = (page: any, pageSize: any) => {
       this.renderTime = new Date().getTime();
       onChangePagination && onChangePagination(page, pageSize);
@@ -790,10 +799,9 @@ export default class Index extends React.Component<HandsonProps, any> {
         // choType: null,
       });
     };
-    // console.log('refreshKey---', refreshKey);
     return (
       <Spin spinning={loading || updateLoading}>
-        <div className={`${prefixCls}-handle-wrap`} style={{ position: 'relative', minHeight: '200px' }}>
+        <div className={`${prefixCls}-handle-wrap`} style={{ position: 'relative', minHeight: '200px', height: `calc(100vh - ${TABLE_HEIGHT - 100}px)` }}>
           <div
             id="mytable"
             ref={(ref: any) => {
@@ -821,25 +829,31 @@ export default class Index extends React.Component<HandsonProps, any> {
                 onBlur={handleBlur}
               />}
           </div>
-          <div className="footer-box" style={{ width: '100%' }}>
+          <div className="footer-box" style={{ width: '100%', height: '35px' }}>
             <span>
               {
-                checkedAllArr?.length ?
+                this.selectedRowKeys?.length ?
                   <span>
-                    <span>已选择 {checkedAllArr.length}项</span>
-                    <a onClick={handleClearChecked}>清空选项</a>
+                    <span>已选择 {this.selectedRowKeys.length}项</span>
+                    <Popconfirm placement="top" title="确认清空已选项？" onConfirm={this.handleClearAllCheck.bind(this)} >
+                      <a>清空选项</a>
+                    </Popconfirm>
                   </span>
                   : ''
               }
             </span>
-            <Pagination
-              showSizeChanger
-              defaultCurrent={1}
-              total={0}
-              {...pagination}
-              onChange={handleChangePage}
-              onShowSizeChange={onShowSizeChange}
-            />
+            {
+              this.props.dataSource.length > 0 ?
+                <Pagination
+                  showSizeChanger
+                  defaultCurrent={1}
+                  total={0}
+                  {...pagination}
+                  onChange={handleChangePage}
+                  onShowSizeChange={onShowSizeChange}
+                />
+                : null
+            }
           </div>
         </div >
       </Spin>
