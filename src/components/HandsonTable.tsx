@@ -3,11 +3,9 @@ import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import { isArray, indexOf, findIndex, cloneDeep } from 'lodash';
 import 'antd/dist/antd.css';
-import { offset } from './common/handsontabletemp/src/helpers/dom/element';
-import Handsontable from './common/handsontabletemp/src/index.js';
-// import { offset } from '/handsontabletemp/src/helpers/dom/element';
-// import Handsontable from '/handsontabletemp/src/index.js';
-import CustomComponent from './common/antd-handsontable/index';
+import { offset } from './common/table-editor-pro/handsontable-source/src/helpers/dom/element';
+import Handsontable from './common/table-editor-pro/handsontable-source/src/index.js';
+import CustomComponent from './common/table-editor-pro/custom-components';
 import './index.css';
 
 /**
