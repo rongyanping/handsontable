@@ -5724,7 +5724,7 @@ export default class HandsonTable extends Component<any, any> {
         { label: `<div class='${prefixCls}-header-item-space-between'><span class='${prefixCls}-header-item-one'>配置组3</span> <a class='${prefixCls}-header-item-two'>删除</a></div>`, colspan: 3 },
 
       ],
-      ['打印类型', '分楼层打印', '使用时间段','打印类型', '分楼层打印', '使用时间段','打印类型', '分楼层打印', '使用时间段'],
+      ['打印类型', '分楼层打印', '使用时间段', '打印类型', '分楼层打印', '使用时间段', '打印类型', '分楼层打印', '使用时间段'],
     ]
   }
 
@@ -6087,23 +6087,24 @@ export default class HandsonTable extends Component<any, any> {
     console.log('handoson table end---', end);
     return (
       <div style={{ marginTop: '60px' }}>
-        <div id="mytable" style={{ position: 'relative' }}>
-          {choType &&
-            <CustomComponent
-              type={choType}
-              textParent={textParent}
-              position={position}
-              style={customStyle}
-              dataSource={dataSource}
-              defaultValue={defaultValue}
-              value={defaultValue}
-              onChange={handleChange}
-              typeRefreshKey={typeRefreshKey}
-              startOpen={startOpen}
-              endOpen={endOpen}
-              mode={mode}
-            />}
-        </div>
+        <Table
+          loading={loading}
+          columns={columns}
+          nestedHeaders={type === 'dish' ? nestedHeadersDish() : nestedHeadersMethod()}
+          dataSource={data}
+          rowKey={rowKey}
+          updateTableSettings={updateTableSettings}
+          refreshKey={refreshKey}
+          activeKey={activeKey}
+          isEdit={isEdit}
+          fixedColumnsLeft={4}
+          pagination={pagination}
+          onChangePagination={onChangePagination}
+          onShowSizeChange={onShowSizeChange}
+          onChangeCell={handleChangeCell}
+          onChangeCheckBox={onChangeCheckBox}
+          rowSelection={rowSelection}
+        />
 
       </div>
     );
